@@ -13,12 +13,13 @@ The data will be recovered from BBG or other source for the first daily dataset.
 ## Description of the strategy
 
 Multi algo approach where a core algorithm uses a set of predictions given by a selection of predictive models to give a global answer. As of now the prediction model will be restricted to a binary (up/down) classification equivalent to predicting if the return of an asset will be positive, allowing the use of classification algos.
+
 Global hyperparameters:
 *	n: numbers of total obs
 *	h: time between two obs, crucial
-*	X: main dataset, stored once and then called by ref
+*	X: main dataset, stored once and then called by ref, by default just historical price data
 *	Y: what do we try to predict? Prices? Returns? Log returns?
-*	Do we choose a binary prediction approach (up/down), or three classes (up/down/nul) or a regression?
+*	Do we choose a binary prediction approach (up/down), or three classes (up/down/null) or a regression?
 
 ## Core algorithm
 
@@ -50,10 +51,10 @@ The algos will be coded as subclass of the generic algo class, with overloaded m
 *	Random Forest
 *	SVM
 *	Neural Networks:
-  *	MLP: Multi Layer Perceptrons, including Deep Learning methods
-  *	RNN: Recurrent Neural Networks, LSM: Liquid State Machines, ESN: Echo State Networks (good for TS)
-  *	GAN: Generative Adversarial Networks, can be used in RNN, including conditional GAN
-  *	DBN: Deep Belief Networks
+    *	MLP: Multi Layer Perceptrons, including Deep Learning methods
+    *	RNN: Recurrent Neural Networks, LSM: Liquid State Machines, ESN: Echo State Networks (good for TS)
+    *	GAN: Generative Adversarial Networks, can be used in RNN, including conditional GAN
+    *	DBN: Deep Belief Networks
 *	Logit with/out LASSO, Ridge, Elastic Net
 *	Linear reg with/out LASSO, Ridge, Elastic Net
 *	Pair Trading, or other correlation methods, can be coupled with correlation modeling using ARIMA
@@ -64,6 +65,12 @@ The algos will be coded as subclass of the generic algo class, with overloaded m
 *	K mean clustering
 *	KNN
 *	Bayesian network
+
+These algos will have to be independently calibrated using one of these methods:
+* Time series expanding/rolling window cross validation:
+    * Grid Search: brute forcing a set of hyperparams
+    * Random Search: similar with a random subset of all combinaison
+* GA: Genetic Algorithm
 
 ## Trading Strategy
 
