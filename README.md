@@ -128,30 +128,37 @@ To trade we can either connect to IG using a python library or directly use Quan
 
 Please note than when only the name of the paper is given, you can find it on the IC Library Search tool.
 
-Main paper, but pretty basic, to read first, results are mainly cheated because of overfitting:
+* Main paper, but pretty basic, to read first, results are mainly cheated because of overfitting:
 Intelligent stock trading system based on improved technical analysis and Echo State Network
 
-Details about how to transform price data into "high level price data":
+* Details about how to transform price data into "high level price data":
 Intelligent stock trading system by turning point confirming and probabilistic reasoning
 
-More complex, here they use GA as a core algo to mix differents MLs methods to predict:
+* More complex, here they use GA as a core algo to mix differents MLs methods to predict:
 An evolutionary approach to the combination of multiple classifiers to predict a stock price index
 
-Similar article focused on ESN by same authors than first one:
+* Similar article focused on ESN by same authors than first one:
 http://web.inf.ufpr.br/menotti/ci171-2015-2-1/files/seminario-Dennis-artigo.pdf
 
-Interesting paper, it covers the use of NN for time series prediction, seems fancy ass complicated tho:
+* Interesting paper, it covers the use of NN for time series prediction, seems fancy ass complicated tho:
 https://arxiv.org/pdf/1703.01887.pdf
 
-Not related to finance but about GA + ESN:
+* Not related to finance but about GA + ESN:
 Genetic algorithm optimized double-reservoir echo state network for multi-regime time series prediction
 
-Very good paper using esemble method on ML algorithm to built a trading strategy, it covers lots of ML algo apart from NN. Then it uses a multi model AdaBoost algo as a core algo. They also use a RELIEF algorithm to select features. However it works with 3 month prediction and with lots of economic data, it also gives a lot of analysis of economic effects to justify the fact that some algo will outperform others in certain prediods. Again careful with results, risk of overfitting here:
+* Very good paper using esemble method on ML algorithm to built a trading strategy, it covers lots of ML algo apart from NN. Then it uses a multi model AdaBoost algo as a core algo. They also use a RELIEF algorithm to select features. However it works with 3 month prediction and with lots of economic data, it also gives a lot of analysis of economic effects to justify the fact that some algo will outperform others in certain prediods. Again careful with results, risk of overfitting here:
 Ensemble Committees for Stock Return Classification and Prediction
 
-Python Library to easily use the IG API:
+* Thesis, might use GAN for time series predicting, hard to find anything else on GAN + time series:
+Representation Learning on Time Series with Symbolic Approximation and Deep Learning
+
+* What seems to be one of the main currently available paper on GAN, but not on time series:
+Unsupervised Representation Learning With Deep Convolutional Generative Adversarial Networks
+
+
+* Python Library to easily use the IG API:
 https://github.com/ig-python/ig-markets-api-python-library
 
-IG API:
+* IG API:
 http://labs.ig.com/apiorders
 
