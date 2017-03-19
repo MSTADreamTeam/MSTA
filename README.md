@@ -1,6 +1,8 @@
 # MSTA
 Multi Strategy Trading Algorithm
 
+Hybrid trading algorithm using a set of predictive methods to detect trends in market price time series. The set of predictions is then retreated through an ensemble method to provide a final prediction and a trading strategy is built on it.
+
 ## Main guidelines: Why will the algo work?
 
 Let us not forget how hard it is to predict stock returns. However, this is due to the very basic approach usually taken by people trying to predict. Here we will try to gain an edge over the market by cleverly combining different signals coming from different approaches. It is very important to have a set of classic algo trading strats well calibrated to begin with. Indeed, the ML algos can only provide an edge if we use them with the right calibration approach, but it is a mistake to believe they can learn everything by themselves if they don’t have the right dataset, hence we need to be very careful about how we will treat the results of these algos. A clever approach for example would be to use data science method to tune hyperparameters of classic trading strats. 
@@ -14,13 +16,14 @@ Note that on the main reference paper they transform an inomogenous timestamp pr
 
 ## Description of the strategy
 
-Multi algo approach where a core algorithm uses a set of predictions given by a selection of predictive models to give a global answer. As of now the prediction model will be restricted to a binary (up/down) classification equivalent to predicting if the return of an asset will be positive, allowing the use of classification algos.
+Multi algo approach where a core algorithm uses a set of predictions given by a selection of predictive models to give a global answer. As of now the prediction model will be restricted to a classification equivalent to predicting Up/Down/Null, allowing the use of classification algos and simplifying the use of technical analysis.
 
 Global hyperparameters:
 *	n: numbers of total obs
-*	h: time between two obs, crucial
-*	X: main dataset, stored once and then called by ref, by default just historical price data
-*	Y: what do we try to predict? Prices? Returns? Log returns?
+*	h: time between two obs, crucial:
+    * we will begin with one day and then test with intraday data
+*	X: main dataset, stored once and then called by ref, by default just historical price data with lags
+*	Y: price data, do we transform it?
 *	Do we choose a binary prediction approach (up/down), or three classes (up/down/null) or a regression?
 
 ## Core algorithm
@@ -87,11 +90,16 @@ These algos will have to be independently calibrated using one of these methods:
 ## Trading Strategy
 
 Out of our predictions we built a trading strat based on:
-*	The final prediction
+* The final prediction
 * The variance of the predictions
-*	Other indicators?
+* Other indicators?
 
-The basic approach is to go long/short when we predict a significant move with consistency across the models. To calculate the consistence we can assume a N(0,1) (or estimate via NP estimation a law) on Pred/std(Pred) and test his significativity at several threshold. We could tehn invest only if the prediction is statistically different from zero. 
+The basic approach is to go long/short when we predict a significant move with consistency across the models.
+
+In case of a regression approach: to calculate the consistence we can assume a N(0,1) (or estimate via NP estimation a law) on Pred/std(Pred) and test his significativity at several threshold. We could then invest only if the prediction is statistically different from zero.
+
+In a case of classification approach: we can use the third prediction class Null to avoid too weak signals. This would be directed by an hyperparameter that can be estimated using an historical vol approach.
+
 We could invest with a size inversely proportional to the variance, to define the exact optimal functional form of the size as a function of the prediction and its variance, we would need to solve an easy optimization problem on the PnL.
 
 To trade we can either connect to IG using a python library or directly use Quantopian. The IG API also provides live price information!
