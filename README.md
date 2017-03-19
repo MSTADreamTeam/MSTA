@@ -1,5 +1,5 @@
-# MSTA
-Multi Strategy Trading Algorithm
+# MSTA: Multi Strategy Trading Algorithm
+
 
 Hybrid trading algorithm using a set of predictive methods to detect trends in market price time series. The set of predictions is then retreated through an ensemble method to provide a final prediction and a trading strategy is built on it.
 
@@ -39,10 +39,18 @@ First approaches:
 *	Manually fix the weights, allow for single algo testing
 
 More advanced:
-*	Calibrate the weights using one of the algos
-*	Boosting algo methodology on a linear reg w/out regularization
-*	Voting methodology (majority or more complexe)
+* Use any one of the algos as a the core algo
+* Boosting algo methodology on a linear reg w/out regularization
+* Voting methodology :
+    * majority vote 
+    * weighted majority vote
+    * Borda count 
+    * weighted Borda count
+    * Bayesian formalism
+    * BKS
+    * Dempster–Shafer theories of evidence
 * ESN
+* Markov Network
 
 ## Algos
 
@@ -106,7 +114,14 @@ To trade we can either connect to IG using a python library or directly use Quan
 
 ## References & useful links
 
+Main paper, but pretty basic, to read first:
 Intelligent stock trading system based on improved technical analysis and Echo State Network
+
+Details about how to transform price data into "high level price data":
+Intelligent stock trading system by turning point confirming and probabilistic reasoning
+
+More complex, here they use GA as a core algo to mix differents MLs methods to predict:
+An evolutionary approach to the combination of multiple classifiers to predict a stock price index
 
 https://github.com/ig-python/ig-markets-api-python-library
 
