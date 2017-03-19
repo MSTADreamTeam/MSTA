@@ -94,7 +94,8 @@ The algos will be coded as subclass of the generic algo class, with overloaded m
 *	Adaptive boosting, and other boosting algos, used on several base estimators
 *	K mean clustering
 *	KNN
-*	Bayesian network
+* Bayesian network
+* Kalman Filter
 
 These algos will have to be independently calibrated using one of these methods:
 * Time series expanding/rolling window cross validation:
