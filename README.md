@@ -76,7 +76,12 @@ The algos will be coded as subclass of the generic algo class, with overloaded m
     * MA enveloppe
     * RSI: Relative Strengh Index + Slopes
     * ROC: Rate of Change system
-    * Stochastic Indicator
+    * PSY: psycological stability
+    * MOM: Momentum
+    * VR: Volume Ratio
+    * OBV: On Balance Volume
+    * DIS: Disparity
+    * STOD: Stochastic Indicator
     * Candle Chart Indicators:
         * Hammer and hanging man
         * Dark Cloud River
