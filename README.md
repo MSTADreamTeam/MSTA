@@ -10,6 +10,8 @@ Investigate the stock return patterns such as short term mean momentum, medium t
 
 The data will be recovered from BBG or other source for the first daily dataset. Then we can use IG HTTP protocols to build dataset live and trade live.
 
+Note that on the main reference paper they transform an inomogenous timestamp price dataset into a more simple time series containing only trend information.
+
 ## Description of the strategy
 
 Multi algo approach where a core algorithm uses a set of predictions given by a selection of predictive models to give a global answer. As of now the prediction model will be restricted to a binary (up/down) classification equivalent to predicting if the return of an asset will be positive, allowing the use of classification algos.
@@ -58,7 +60,17 @@ The algos will be coded as subclass of the generic algo class, with overloaded m
 *	Logit with/out LASSO, Ridge, Elastic Net
 *	Linear reg with/out LASSO, Ridge, Elastic Net
 *	Pair Trading, or other correlation methods, can be coupled with correlation modeling using ARIMA
-*	Technical Analysis: Mean reverting/ trend following usual trading signals using Bollinger bands, and more, it is very important to have a strong tech analysis algo lib.
+*	Technical Analysis: cf ref for details
+    * Golden Cross / Dead Cross
+    * MA enveloppe
+    * RSI: Relative Strengh Index + Slopes
+    * ROC: Rate of Change system
+    * Stochastic Indicator
+    * Candle Chart Indicators:
+        * Hammer and hanging man
+        * Dark Cloud River
+        * Piercing line
+        * Engulginf pattern
 *	Web scrapping (on news websites like FXstreet or ForexFactory)
 *	Mean revert/trend follow on news impact
 *	Adaptive boosting, and other boosting algos, used on several base estimators
@@ -84,8 +96,11 @@ We could invest with a size inversely proportional to the variance, to define th
 
 To trade we can either connect to IG using a python library or directly use Quantopian. The IG API also provides live price information!
 
-## References
+## References & useful links
 
 Intelligent stock trading system based on improved technical analysis and Echo State Network
 
+https://github.com/ig-python/ig-markets-api-python-library
+
+http://labs.ig.com/apiorders
 
