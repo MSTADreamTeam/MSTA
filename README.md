@@ -5,7 +5,7 @@ Hybrid trading algorithm using a set of predictive methods to detect trends in m
 
 ## Main guidelines: Why will the algo work?
 
-Let us not forget how hard it is to predict stock returns. However, this is due to the very basic approach usually taken by people trying to predict. Here we will try to gain an edge over the market by cleverly combining different signals coming from different approaches. It is very important to have a set of classic algo trading strats well calibrated to begin with. Indeed, the ML algos can only provide an edge if we use them with the right calibration approach, but it is a mistake to believe they can learn everything by themselves if they don’t have the right dataset, hence we need to be very careful about how we will treat the results of these algos. A clever approach for example would be to use data science method to tune hyperparameters of classic trading strats. 
+Let us not forget how hard it is to predict stock returns. Here we will try to gain an edge over the market by cleverly combining different signals coming from different approaches. These approaches will come from two main different types of predictive algorithm: Technical analysis and Machine Learning. It is very important to have a set of classic algo trading strats well calibrated to begin with. Indeed, the ML algos can only provide an edge if we use them with the right calibration approach, but it is a mistake to believe they can learn everything by themselves if they don’t have the right dataset, hence we need to be very careful about how we will treat the results of these algos. A clever approach for example would be to use data science method to tune hyperparameters of classic trading strats. 
 
 Investigate the stock return patterns such as short term mean momentum, medium term mean reverting, and calendar anomalies… (paper from Agron)
 
@@ -63,17 +63,7 @@ All the algo needs to have a similar structure, hence we will build a general ab
 
 They will all be calibrated and called using the same syntax and then the same arguments.
 The algos will be coded as subclass of the generic algo class, with overloaded methods. Here are a sample of possible algos:
-*	Random Forest
-* SVM: Support Vector Machine
-* RVM: Relevance Vector Machine
-*	Neural Networks:
-    *	MLP: Multi Layer Perceptrons, including Deep Learning methods
-    *	RNN: Recurrent Neural Networks, LSM: Liquid State Machines, ESN: Echo State Networks (good for TS)
-    *	GAN: Generative Adversarial Networks, can be used in RNN, including conditional GAN
-    *	DBN: Deep Belief Networks
-*	Logit with/out LASSO, Ridge, Elastic Net
-*	Linear reg with/out LASSO, Ridge, Elastic Net
-*	Pair Trading, or other correlation methods, can be coupled with correlation modeling using ARIMA
+
 *	Technical Analysis: cf ref for details
     * Golden Cross / Dead Cross
     * MA enveloppe
@@ -90,13 +80,26 @@ The algos will be coded as subclass of the generic algo class, with overloaded m
         * Dark Cloud River
         * Piercing line
         * Engulginf pattern
-*	Web scrapping (on news websites like FXstreet or ForexFactory)
-*	Mean revert/trend follow on news impact
-*	Adaptive boosting, and other boosting algos, used on several base estimators
-*	K mean clustering
-*	KNN
-* Bayesian network
-* Kalman Filter
+
+* Machine Learning:
+    *	Random Forest
+    * SVM: Support Vector Machine
+    * RVM: Relevance Vector Machine
+    *	Neural Networks:
+        *	MLP: Multi Layer Perceptrons, including Deep Learning methods
+        *	RNN: Recurrent Neural Networks, LSM: Liquid State Machines, ESN: Echo State Networks (good for TS)
+        *	GAN: Generative Adversarial Networks, can be used in RNN, including conditional GAN
+        *	DBN: Deep Belief Networks
+   *	Logit with/out LASSO, Ridge, Elastic Net
+   *	Linear reg with/out LASSO, Ridge, Elastic Net
+   *	Pair Trading, or other correlation methods, can be coupled with correlation modeling using ARIMA
+   *	Web scrapping (on news websites like FXstreet or ForexFactory)
+   *	Mean revert/trend follow on news impact
+   *	Adaptive boosting, and other boosting algos, used on several base estimators
+   *	K mean clustering
+   *	KNN
+   * Bayesian network
+   * Kalman Filter
 
 These algos will have to be independently calibrated using one of these methods:
 * Time series expanding/rolling window cross validation:
