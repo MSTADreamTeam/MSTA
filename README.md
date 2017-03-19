@@ -6,13 +6,14 @@ Hybrid trading algorithm using a set of predictive methods to detect trends in m
 ## Main guidelines: Why will the algo work?
 
 Let us not forget how hard it is to predict stock returns. However, this is due to the very basic approach usually taken by people trying to predict. Here we will try to gain an edge over the market by cleverly combining different signals coming from different approaches. It is very important to have a set of classic algo trading strats well calibrated to begin with. Indeed, the ML algos can only provide an edge if we use them with the right calibration approach, but it is a mistake to believe they can learn everything by themselves if they don’t have the right dataset, hence we need to be very careful about how we will treat the results of these algos. A clever approach for example would be to use data science method to tune hyperparameters of classic trading strats. 
+
 Investigate the stock return patterns such as short term mean momentum, medium term mean reverting, and calendar anomalies… (paper from Agron)
 
 ## Data
 
 The data will be recovered from BBG or other source for the first daily dataset. Then we can use IG HTTP protocols to build dataset live and trade live.
 
-Note that on the main reference paper they transform an inomogenous timestamp price dataset into a more simple time series containing only trend information.
+Note that on the main reference and the second paper they transform an inomogeneous timestamp price dataset into a more simple time series containing only trend information.
 
 ## Description of the strategy
 
@@ -42,11 +43,11 @@ More advanced:
 * Use any one of the algos as a the core algo
 * Boosting algo methodology on a linear reg w/out regularization
 * Voting methodology :
-    * majority vote 
-    * weighted majority vote
-    * Borda count 
-    * weighted Borda count
-    * Bayesian formalism
+    * Majority Vote 
+    * Weighted Majority Vote
+    * Borda Count 
+    * Weighted Borda Count
+    * Bayesian Formalism
     * BKS
     * Dempster–Shafer theories of evidence
 * ESN
@@ -58,6 +59,7 @@ All the algo needs to have a similar structure, hence we will build a general ab
 *	Predict function: function that gives a Y given a X
 *	Select data function: manual or algo way to select variables from the main dataset
 *	Train function: function that will train and calibrate the model on a Y and X subsets of obs
+*  Hyperparams Calibration: this function will calibrate the hyperparameters of the algorithm (chekc last paragraph of this part)
 
 They will all be calibrated and called using the same syntax and then the same arguments.
 The algos will be coded as subclass of the generic algo class, with overloaded methods. Here are a sample of possible algos:
