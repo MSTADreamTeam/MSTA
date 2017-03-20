@@ -7,9 +7,11 @@ import numpy as np
 def dataset_building(n_max = None):
     datafile = pd.ExcelFile('data_fx.xlsx')
     if n_max is None:
-        dataset = datafile.parse('Sheet1')     
+        dataset = datafile.parse('Sheet1')    
     else:
-        dataset = datafile.parse('Sheet1').iloc[:n_max,:]
+        dataset = datafile.parse('Sheet1').iloc[:n_max,:] 
+    # This last instruction allow to reverse the df so that recent dates are at the end
+    dataset=dataset.sort_index(axis=0,ascending=True)
     return dataset
 
 

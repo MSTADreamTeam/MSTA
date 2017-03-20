@@ -2,17 +2,32 @@
 
 class gen_algo:
     def __init__(self):
-        self.name="Mother algorithm class instance"
-        self.model=None
+        # General defining arguments
+        self.name="Generic Algorithm"
+        self.model=None # Will stay None for manually coded algo, otherwise will contain the model object for ML algos for example
+        self.algo_type=None # Has to be either ML for machine learning or TA for Technical Analysis
+        self.output_type=None # Has to be either C for Classification or R for Regression 
         
-    def select_data(self, X, *Y):
+        # For Regression
+        self.mse=None 
+        self.cum_rmse=None
+        self.r2oos=None 
+
+        # For Classification
+        self.err_class_rate=None
+        
+    def select_data(self, X, Y):
         return X
 
-    def predict(self, X):
+    def predict(self, X_test):
         return self
 
-    def train(self, X, Y):
+    def train(self, X_train, Y_train):
         return self
     
-    def predict(self, X):
+    def compute_errors(self):
+    # This function will compute MSE, CUM RMSE and R2 OOS or the Classification Rate
         return self
+
+    def __str__(self):
+        return self.name

@@ -10,9 +10,9 @@ from historical_mean import HM
 
 def __main__():
 ## Building the dataset
-    dataset=data.dataset_building(100)
+    dataset=data.dataset_building(n_max=1000)
 
-    dataset_lag=data.add_lags(dataset,[1,2])
+    dataset_lag=data.add_lags(dataset,lags=[1,2])
 
     print("hello")
 
