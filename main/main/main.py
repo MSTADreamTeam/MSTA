@@ -5,14 +5,25 @@
 ## Important note: the imported modules do not run code but just import functions
 
 import data
-import algorithm_mother
+from historical_mean import HM
 
 
 def __main__():
-    ## Building the dataset
-    dataset=dataset_building()
+## Building the dataset
+    dataset=data.dataset_building(100)
+
+    dataset_lag=data.add_lags(dataset,[1,2])
+
+    print("hello")
+
     
-    ## Creating & calibrating the different algorithms
+## Creating & calibrating the different algorithms
+    # First define a dictionary of algorithm associated with their names
+    algos={"HM":HM(1)}    
+    # Then we just allow ourselves to work/calib/fit/train only a subsets of these algos
+    algos_used=["HM"]
+    # Then we
+
 
     ## Core algorithm
 
@@ -21,3 +32,7 @@ def __main__():
     ## Backtest/Plots/Trading
 
     return 0
+
+
+# For debugging purposes
+__main__()

@@ -22,11 +22,14 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="algorithm_mother.py">
+    <Compile Include="generic_algo.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="main.py" />
     <Compile Include="data.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="historical_mean.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
