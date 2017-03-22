@@ -6,23 +6,24 @@ import pandas as pd
 import numpy as np
 
 class HM(gen_algo):
-    def __init__(self, global_hyperparams, mean_type="arithmetic"):
-        gen_algo.__init__(self) # allow to run the init of the gen_algo class, and define all default arguments
+    def __init__(self, global_hyperparams, mean_type="arithmetic", window_size=None):
+        gen_algo.__init__(self, global_hyperparams) # allow to run the init of the gen_algo class, and define all default arguments
         self.name="Historical Mean"
-        self.algo_type="TA" # By convention
+        self.algo_type="BA" # By convention
         self.mean_type=mean_type
-        self.global_hyperparams=global_hyperparams
-        
+        if window_size is not None:   # It is possible to define a window size different from the global rolling window size, but it has to be less or equal
+            self.window_size=window_size
+        else:
+            self.window_size=self.global_hyperparams["rolling_window_size"]
             
     def predict(self, X_test, pred_index): # Y has to be a non lagged dataframe with only one column
-        w = self.global_hyperparams["rolling_window_size"]
-        label=" HM W"+str(w)+" "+self.mean_type
+        w = self.window_size
         if self.mean_type=="arithmetic":
-            predicted_value=X_test.mean(axis=0,skipna=None)
+            predicted_value=X_test.iloc[-w:].mean(axis=0,skipna=None)
         elif self.mean_type=="geometric":
             predicted_value=1
-            for idx in X_test.index:
-                predicted_value=predicted_value*(1+Y.loc[idx])
+            for idx in X_test.iloc[-w:].index:
+                predicted_value=predicted_value*(1+X_test.loc[idx])
             predicted_value=np.power(predicted_value,1/w)-1
             
         # The output will be different in case of a regression or classification, no need to change the output for a regression
@@ -34,7 +35,7 @@ class HM(gen_algo):
                 predicted_value=0 if abs(predicted_value)<threshold else predicted_value
                 predicted_value=np.sign(predicted_value)
             
-        self.predicted_values.loc[pred_index]=predicted_value # please check this syntax
+        self.predicted_values[pred_index]=predicted_value
         return predicted_value # here we have a redundency in the return and the side effect of the method, this is used to simplify coding
 
 ## testing code

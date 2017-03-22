@@ -6,6 +6,7 @@
 
 import data
 from historical_mean import HM
+from linear_regression import LR
 
 
 def __main__():
@@ -34,6 +35,7 @@ def __main__():
     # We select an asset returns time series to predict from the dataset
     asset_label="EURUSD Curncy"
     Y=dataset[[asset_label]]
+    Y.dropna(inplace=True)
 
     # With lags, used as X, maybe this implementation is not optimal, think about a slicing way to do that?
     lags=range(1,rolling_window_size+1)
@@ -43,26 +45,29 @@ def __main__():
 ## Creating & calibrating the different algorithms
 
     # First define a dictionary of algorithm associated with their names
-    algos={"HM AR":HM(global_hyperparams),
-           "HM GEO":HM(global_hyperparams,mean_type="geometric")}    
+    algos={"HM AR Full window":HM(global_hyperparams),
+           "HM GEO Full window":HM(global_hyperparams,mean_type="geometric"),
+           "HM AR Short Term":HM(global_hyperparams,window_size=10),
+           "HM GEO Short Term":HM(global_hyperparams,mean_type="geometric",window_size=10),
+           "LR":LR(global_hyperparams)}
     
     # Then we just allow ourselves to work/calib/fit/train only a subsets of these algos
-    # algos_used=algos.keys()
-    algos_used=["HM AR"]
+    #algos_used=algos.keys()
+    algos_used=["HM AR Full window","LR"]
 
     for key in algos_used:
         # We let each algo select the relevent data to work on
         algos[key].select_data(X)
 
-        for i in range(rolling_window_size+1,len(Y.index)): # Note that i in the numeric index in Y of the predicted value
-            X_train=X[i-rolling_window_size:i-1] # Feel free to check the indices i am very bad at that shit it is killing me ffs
-            Y_train=Y[i-rolling_window_size:i-1] # For example there are NaN in X_train at the beggining, needs further checking
+        for i in range(rolling_window_size+max_lags,len(Y.index)): # Note that i in the numeric index in Y of the predicted value
+            X_train=X.iloc[i-rolling_window_size:i-1] # Feel free to check the indices i am very bad at that shit it is killing me ffs
+            Y_train=Y.iloc[i-rolling_window_size:i-1] # For example there are NaN in X_train at the beggining, needs further checking
             X_test=X.iloc[i]
             Y_test=Y.iloc[i]
             pred_index=Y.index[i] # This is the timestamp of i
 
             # We train all the algos on the testing set, it includes the calibration of hyperparameters
-            algos[key].train(Y_train,X_train)
+            algos[key].train(X_train,Y_train)
 
             # We build the predictions
             algos[key].predict(X_test,pred_index)
@@ -71,7 +76,8 @@ def __main__():
             # algos[key].compute_outputs(Y,pred_index)
             
             # for debug
-            # print(i)
+            print(i)
+       # print(algos[key].predicted_values)
 
 ## Core algorithm
 

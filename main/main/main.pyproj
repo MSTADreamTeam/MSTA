@@ -32,6 +32,9 @@
     <Compile Include="historical_mean.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="linear_regression.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
