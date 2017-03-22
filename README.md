@@ -13,6 +13,14 @@ Investigate the stock return patterns such as short term mean momentum, medium t
 
 The data will be recovered from BBG or other source for the first daily dataset. Then we can use IG HTTP protocols to build dataset live and trade live.
 
+Here is the type of data we could include, in order or estimated importance:
+* Price data (Close for daily, and Bid/Ask for Intraday)
+* Traded Volume
+* News (please see the part about news analysis for more details)
+* Global Economic Data (CPI, GDP Growth, Interest Rates, ...)
+* Single Stock Data
+* For other ideas, check the papers
+
 Note that on the main reference and the second paper they transform an inomogeneous timestamp price dataset into a more simple time series containing only trend information.
 
 ## Description of the strategy
@@ -108,6 +116,16 @@ These algos will have to be independently calibrated using one of these methods:
     * Random Search: similar with a random subset of all combinaison
 * GA: Genetic Algorithm
 
+## Possible improvment: News analysis
+
+If implementing news analysis by itself as one of the algo is possible, news analysis can also be used in the trading strategy to avoid taking position close to big news event.
+
+Please check these databases::
+* Accern Alphaone News Sentiment
+* Sentdex Sentiment Analysis
+* EventVestor
+* Raventpack
+
 ## Trading Strategy
 
 Out of our predictions we built a trading strat based on:
@@ -159,9 +177,11 @@ Unsupervised Representation Learning With Deep Convolutional Generative Adversar
 * General article about when the historical mean can be beaten as a predictor and why:
 http://statweb.stanford.edu/~ckirby/brad/other/Article1977.pdf
 
-* Quantopian article about Mean Reverting algorithms:
+* Quantopian article about Mean Reverting algorithms, focused on news impact, very interesting:
 http://quantopian.us5.list-manage2.com/track/click?u=4c1d0cf4959586b47ef210e9c&id=42172f3a9e&e=135bb3f5c5
 
+* Reference paper on Short Term Mean Reversion:
+https://papers.ssrn.com/sol3/papers.cfm?abstract_id=436663
 
 * Python Library to easily use the IG API:
 https://github.com/ig-python/ig-markets-api-python-library
