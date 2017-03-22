@@ -6,31 +6,38 @@ import pandas as pd
 import numpy as np
 
 class HM(gen_algo):
-    def __init__(self, window_size=None,mean_type="arithmetic"):
+    def __init__(self, global_hyperparams, mean_type="arithmetic"):
+        gen_algo.__init__(self) # allow to run the init of the gen_algo class, and define all default arguments
         self.name="Historical Mean"
-        self.window_size=window_size
+        self.algo_type="TA" # By convention
         self.mean_type=mean_type
+        self.global_hyperparams=global_hyperparams
+        
             
-    def predict(self, Y, store_value=False): # Y has to be a non lagged dataframe with only one column
-        w=self.window_size
-        label=Y.columns[0]+" HM W"+str(w)+" "+self.mean_type
-        df=pd.DataFrame(index=Y.index)
+    def predict(self, X_test, pred_index): # Y has to be a non lagged dataframe with only one column
+        w = self.global_hyperparams["rolling_window_size"]
+        label=" HM W"+str(w)+" "+self.mean_type
         if self.mean_type=="arithmetic":
-            df[label]=[Y.iloc[i-w-1:i-1].mean(axis=0,skipna=None) for i in range(0,len(Y.index))]
+            predicted_value=X_test.mean(axis=0,skipna=None)
         elif self.mean_type=="geometric":
-            res=[np.nan for k in range(w)]
-            for i in range(w,len(Y.index)):
-                geo_mean=1
-                for j in range(i-w-1,i):
-                    geo_mean=geo_mean*(1+Y.iloc[i])
-                geo_mean=np.power(geo_mean,1/w)-1
-                res.append(geo_mean)
-            df[label]=res
-        if store_values:
-            self.predicted_values=df
-        return df # here we have a redundency in the return and the side effect of the method, this is used to simplify coding
+            predicted_value=1
+            for idx in X_test.index:
+                predicted_value=predicted_value*(1+Y.loc[idx])
+            predicted_value=np.power(predicted_value,1/w)-1
+            
+        # The output will be different in case of a regression or classification, no need to change the output for a regression
+        if self.global_hyperparams["output_type"]=="C":
+            threshold=self.global_hyperparams["threshold"]
+            if threshold==0:
+                predicted_value=np.sign(predicted_value)
+            else:
+                predicted_value=0 if abs(predicted_value)<threshold else predicted_value
+                predicted_value=np.sign(predicted_value)
+            
+        self.predicted_values.loc[pred_index]=predicted_value # please check this syntax
+        return predicted_value # here we have a redundency in the return and the side effect of the method, this is used to simplify coding
 
-# testing code
+## testing code
 #import matplotlib.pyplot as pyplt
 #import data
 
@@ -44,5 +51,5 @@ class HM(gen_algo):
 #pyplt.plot(res)
 #pyplt.plot(res2)
 #pyplt.show()
-# end of testing code
+## end of testing code
     
