@@ -65,6 +65,7 @@ They will all be calibrated and called using the same syntax and then the same a
 The algos will be coded as subclass of the generic algo class, with overloaded methods. Here are a sample of possible algos:
 
 *	Technical Analysis: cf ref for details
+    * Historical Mean: arithmetic and geometric
     * Golden Cross / Dead Cross
     * MA enveloppe
     * RSI: Relative Strengh Index + Slopes
@@ -154,6 +155,9 @@ Representation Learning on Time Series with Symbolic Approximation and Deep Lear
 
 * What seems to be one of the main currently available paper on GAN, but not on time series:
 Unsupervised Representation Learning With Deep Convolutional Generative Adversarial Networks
+
+* General article about when the historical mean can be beaten as a predictor and why :
+http://statweb.stanford.edu/~ckirby/brad/other/Article1977.pdf
 
 
 * Python Library to easily use the IG API:
