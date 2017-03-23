@@ -13,27 +13,30 @@ Investigate the stock return patterns such as short term mean momentum, medium t
 
 The data will be recovered from BBG or other source for the first daily dataset. Then we can use IG HTTP protocols to build dataset live and trade live.
 
-Here is the type of data we could include, in order or estimated importance:
+Here is the type of data we could include, in order of estimated importance:
 * Price data (Close for daily, and Bid/Ask for Intraday)
 * Traded Volume
-* News (please see the part about news analysis for more details)
+* News Data (please see the part about news analysis for more details)
 * Global Economic Data (CPI, GDP Growth, Interest Rates, ...)
-* Single Stock Data
+* Single Stock Data (see paper)
 * For other ideas, check the papers
 
-Note that on the main reference and the second paper they transform an inomogeneous timestamp price dataset into a more simple time series containing only trend information.
+Note that on the main reference and the second paper they transform an inomogeneous timestamp price dataset into a more simple time series containing only trend information, this approach could be very interesting but we would first need to check if this can be done IS consistently.
 
 ## Description of the strategy
 
-Multi algo approach where a core algorithm uses a set of predictions given by a selection of predictive models to give a global answer. As of now the prediction model will be restricted to a classification equivalent to predicting Up/Down/Null, allowing the use of classification algos and simplifying the use of technical analysis.
+Multi algo approach where a core algorithm uses a set of predictions given by a selection of predictive models to give a global answer.
 
 Global hyperparameters:
 *	n: numbers of total obs
 *	h: time between two obs, crucial:
     * we will begin with one day and then test with intraday data
-*	X: main dataset, stored once and then called by ref, by default just historical price data with lags
+*	X: main dataset, stored once and then called by ref, see Data part
 *	Y: price data, do we transform it?
-*	Do we choose a binary prediction approach (up/down), or three classes (up/down/null) or a regression?
+*	Prediction type:
+   * A binary output: Up/Dowm
+   * A three clqss output: Up/Down/Neutral given a symetric threshold
+   * A regression output
 
 ## Core algorithm
 
@@ -49,7 +52,9 @@ First approaches:
 
 More advanced:
 * Use any one of the algos as a the core algo
-* Boosting algo methodology on a linear reg w/out regularization
+* Boosting algo methodology (for ex: AdaBoost):
+    * on a linear reg w/out regularization
+    * other base estimators
 * Voting methodology :
     * Majority Vote 
     * Weighted Majority Vote
@@ -58,18 +63,16 @@ More advanced:
     * Bayesian Formalism
     * BKS
     * Dempster–Shafer theories of evidence
-* ESN
+* ESN: Echo State Network, see ref paper
 * Markov Network
 
 ## Algos
 
 All the algo needs to have a similar structure, hence we will build a general abstract class algo with the following attributes:
-*	Predict function: function that gives a Y given a X
+*	Predict function: function that gives a Y_test given a X_test
 *	Select data function: manual or algo way to select variables from the main dataset
-*	Train function: function that will train and calibrate the model on a Y and X subsets of obs
-*  Hyperparams Calibration: this function will calibrate the hyperparameters of the algorithm (chekc last paragraph of this part)
+*	Train function: function that will train and calibrate the model on a Y_train and X_train subsets of obs. It will include the calibration of hyperparameters (check bellow)
 
-They will all be calibrated and called using the same syntax and then the same arguments.
 The algos will be coded as subclass of the generic algo class, with overloaded methods. Here are a sample of possible algos:
 
 *	Technical Analysis: cf ref for details
@@ -78,7 +81,7 @@ The algos will be coded as subclass of the generic algo class, with overloaded m
     * MA enveloppe
     * RSI: Relative Strengh Index + Slopes
     * ROC: Rate of Change system
-    * PSY: psycological stability
+    * PSY: Psycological Stability
     * MOM: Momentum
     * VR: Volume Ratio
     * OBV: On Balance Volume
@@ -96,12 +99,12 @@ The algos will be coded as subclass of the generic algo class, with overloaded m
     * RVM: Relevance Vector Machine
     *	Neural Networks:
         *	MLP: Multi Layer Perceptrons, including Deep Learning methods
-        *	RNN: Recurrent Neural Networks, LSM: Liquid State Machines, ESN: Echo State Networks (good for TS)
+        *	RNN: Recurrent Neural Networks, LSM: Liquid State Machines, ESN: Echo State Networks
         *	GAN: Generative Adversarial Networks, can be used in RNN, including conditional GAN
         *	DBN: Deep Belief Networks
-   *	Logit with/out LASSO, Ridge, Elastic Net
-   *	Linear reg with/out LASSO, Ridge, Elastic Net
-   *	Pair Trading, or other correlation methods, can be coupled with correlation modeling using ARIMA
+   *	Logit with/out regularization (LASSO, Ridge, Elastic Net)
+   *	Linear reg with/out regularization
+   *	Pairs Trading, or other correlation methods, can be coupled with correlation modeling using ARIMA, GARCH
    *	Web scrapping (on news websites like FXstreet or ForexFactory)
    *	Mean revert/trend follow on news impact
    *	Adaptive boosting, and other boosting algos, used on several base estimators
@@ -116,11 +119,11 @@ These algos will have to be independently calibrated using one of these methods:
     * Random Search: similar with a random subset of all combinaison
 * GA: Genetic Algorithm
 
-## Possible improvment: News analysis
+## Possible improvment: News Analysis
 
-If implementing news analysis by itself as one of the algo is possible, news analysis can also be used in the trading strategy to avoid taking position close to big news event.
+If implementing news analysis by itself as one of the algo is possible, news analysis can also be used in the trading strategy to avoid taking position close to big news event. As a result, including news into the model can have a range of impacts that could sensibly change the final performance of the stategy. Including a robust News Analysis tool is a key to generate consistent Alpha.
 
-Please check these databases::
+Please check these databases:
 * Accern Alphaone News Sentiment
 * Sentdex Sentiment Analysis
 * EventVestor
@@ -133,13 +136,15 @@ Out of our predictions we built a trading strat based on:
 * The variance of the predictions
 * Other indicators?
 
-The basic approach is to go long/short when we predict a significant move with consistency across the models.
+The basic idea is to go long/short when we predict a significant move with consistency across the models.
 
-In case of a regression approach: to calculate the consistence we can assume a N(0,1) (or estimate via NP estimation a law) on Pred/std(Pred) and test his significativity at several threshold. We could then invest only if the prediction is statistically different from zero.
+In case of a regression approach: to calculate the consistency we can assume a N(0,1) (or estimate via NP estimation a law) on Pred/std(Pred) and test his significativity at several thresholds. We could then invest only if the prediction is statistically different from zero.
 
-In a case of classification approach: we can use the third prediction class Null to avoid too weak signals. This would be directed by an hyperparameter that can be estimated using an historical vol approach.
+In a case of classification approach: we can use the third prediction class Null to avoid too weak signals. This would be directed by an hyperparameter that can be estimated using an historical vol approach (GARCH?).
 
 We could invest with a size inversely proportional to the variance, to define the exact optimal functional form of the size as a function of the prediction and its variance, we would need to solve an easy optimization problem on the PnL.
+
+To conclude it would be interesing to code it using an set of input risk criterias, and let the algo optimiwe the trading strategy as a result.
 
 To trade we can either connect to IG using a python library or directly use Quantopian. The IG API also provides live price information!
 
