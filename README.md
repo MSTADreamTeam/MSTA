@@ -104,7 +104,7 @@ The algos will be coded as subclass of the generic algo class, with overloaded m
         *	DBN: Deep Belief Networks
    *	Logit with/out regularization (LASSO, Ridge, Elastic Net)
    *	Linear reg with/out regularization
-   *	Pairs Trading, or other correlation methods, can be coupled with correlation modeling using ARIMA, GARCH
+   *	Pairs Trading, or other correlation methods, can be coupled with cointegration testing modeling
    *	Web scrapping (on news websites like FXstreet or ForexFactory)
    *	Mean revert/trend follow on news impact
    *	Adaptive boosting, and other boosting algos, used on several base estimators
