@@ -12,7 +12,7 @@ from linear_regression import LR
 def __main__():
 ## Global Hyperparameters
     # The window size of the rolling window used to define each training set size
-    # The models will never see more than this number of points at once
+    # The models will never see more than this number of points at once 
     rolling_window_size=100
     
     # Output type : C for Classification, R for Regression
