@@ -16,7 +16,7 @@ class HM(gen_algo):
         else:
             self.window_size=self.global_hyperparams["rolling_window_size"]
             
-    def predict(self, X_test, pred_index): # Y has to be a non lagged dataframe with only one column
+    def predict(self, X_test, pred_index):
         w = self.window_size
         if self.mean_type=="arithmetic":
             predicted_value=X_test.iloc[-w:].mean(axis=0,skipna=None)

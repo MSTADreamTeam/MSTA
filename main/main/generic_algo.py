@@ -36,15 +36,15 @@ class gen_algo:
     # The train function defined here includes the calibration of hyperparameters
         return self
     
-    def compute_outputs(self, pred_index):
+    def compute_outputs(self, Y):
     # This function will compute all the desired outputs from the predicted data and the real data
         return self
 
     def get_predicted_values(self):
-        return pd.DataFrame(predicted_values, columns="Predicted Value")
+        return pd.DataFrame.from_dict(self.predicted_values, orient='index')
 
     def get_real_values(self):
-        return pd.DataFrame(real_values, columns="Real Value")
+        return pd.DataFrame.from_dict(self.real_values, orient='index')
 
     def __str__(self):
         return self.name
