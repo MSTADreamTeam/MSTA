@@ -2,6 +2,7 @@
 # It will be used as a benchmark for prediction as it represents the random walk hypothesis
 
 from generic_algo import gen_algo
+from data import to_class
 import pandas as pd
 import numpy as np
 
@@ -29,12 +30,8 @@ class HM(gen_algo):
         # The output will be different in case of a regression or classification, no need to change the output for a regression
         if self.global_hyperparams["output_type"]=="C":
             threshold=self.global_hyperparams["threshold"]
-            if threshold==0:
-                predicted_value=np.sign(predicted_value)
-            else:
-                predicted_value=0 if abs(predicted_value)<threshold else predicted_value
-                predicted_value=np.sign(predicted_value)
-            
+            predicted_value=to_class(predicted_value, threshold)
+
         self.predicted_values[pred_index]=predicted_value
         return predicted_value # here we have a redundency in the return and the side effect of the method, this is used to simplify coding
 

@@ -31,3 +31,8 @@ def lagged(df,lags): # add lags in a dataframe
         dfs.append(temp_df)
     res=pd.concat(dfs,axis=1) # Speed optimized
     return res
+
+def to_class(input, threshold=0): # Converts a numeric dataframe into a class dataframe, works for a single value too
+    res=(abs(input)>threshold)*np.sign(input) # Syntax using Bool*Float multiplication and DataFrame operations, be careful with the -0.0 though
+    return res
+        

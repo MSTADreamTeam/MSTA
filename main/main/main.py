@@ -12,7 +12,7 @@ from linear_regression import LR
 def __main__():
 ## Global Hyperparameters
     # The window size of the rolling window used to define each training set size
-    # The models will never see more than this number of points at once 
+    # The models will never see more than this number of points at once
     rolling_window_size=100
     
     # Output type : C for Classification, R for Regression
@@ -36,20 +36,26 @@ def __main__():
     asset_label="EURUSD Curncy"
     Y=dataset[[asset_label]]
     Y.dropna(inplace=True)
+    if output_type=="C":
+        Y=to_class(Y, threshold)
 
     # With lags, used as X, maybe this implementation is not optimal, think about a slicing way to do that?
     lags=range(1,rolling_window_size+1)
     X=data.lagged(Y,lags=lags)
     max_lags=max(lags)
-    
+    # We could also turn X into classes data, is that meaningful?
+    # X=to_class(X,threshold)    
+
 ## Creating & calibrating the different algorithms
 
     # First define a dictionary of algorithm associated with their names
-    algos={"HM AR Full window":HM(global_hyperparams),
+    # As arguments please include the fixed hyperparams of the model as a named argument
+    # For the hyperparameters grid to use in cross validation please provide a dictionary using sklearn syntax 
+    algos={"HM AR Full window":HM(global_hyperparams,window_size=10),
            "HM GEO Full window":HM(global_hyperparams,mean_type="geometric"),
            "HM AR Short Term":HM(global_hyperparams,window_size=10),
-           "HM GEO Short Term":HM(global_hyperparams,mean_type="geometric",window_size=10),
-           "LR":LR(global_hyperparams)}
+           "LR":LR(global_hyperparams),
+           "Lasso":LR(global_hyperparams, regularization="Lasso",hp_grid={"alpha":np.logspace(-5,0,10)}}
     
     # Then we just allow ourselves to work/calib/fit/train only a subsets of these algos
     #algos_used=algos.keys()
