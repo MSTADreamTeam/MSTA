@@ -188,6 +188,12 @@ http://quantopian.us5.list-manage2.com/track/click?u=4c1d0cf4959586b47ef210e9c&i
 * Reference paper on Short Term Mean Reversion:
 https://papers.ssrn.com/sol3/papers.cfm?abstract_id=436663
 
+* Website presenting lots of Neural Nets:
+http://www.asimovinstitute.org/neural-network-zoo/
+
+* About Deep Learning in Finance, presentation given at IC:
+https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2838013
+
 * Python Library to easily use the IG API:
 https://github.com/ig-python/ig-markets-api-python-library
 
