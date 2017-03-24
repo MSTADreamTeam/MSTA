@@ -179,6 +179,12 @@ Representation Learning on Time Series with Symbolic Approximation and Deep Lear
 * What seems to be one of the main currently available paper on GAN, but not on time series:
 Unsupervised Representation Learning With Deep Convolutional Generative Adversarial Networks
 
+* Presentation of GAN:
+https://arxiv.org/pdf/1406.2661v1.pdf
+
+* Presentation of ESN:
+https://pdfs.semanticscholar.org/8922/17bb82c11e6e2263178ed20ac23db6279c7a.pdf
+
 * General article about when the historical mean can be beaten as a predictor and why:
 http://statweb.stanford.edu/~ckirby/brad/other/Article1977.pdf
 
