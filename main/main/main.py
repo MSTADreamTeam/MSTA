@@ -5,6 +5,7 @@
 ## Important note: the imported modules do not run code but just import function and class
 
 import data
+import numpy as np
 from historical_mean import HM
 from linear_regression import LR
 
@@ -30,21 +31,23 @@ def __main__():
                         "threshold":threshold}    
 
 ## Building the dataset
-    dataset=data.dataset_building(n_max=1000)
+    dataset=data.dataset_building(n_max=500)
     
     # We select an asset returns time series to predict from the dataset
     asset_label="EURUSD Curncy"
     Y=dataset[[asset_label]]
     Y.dropna(inplace=True)
-    if output_type=="C":
-        Y=to_class(Y, threshold)
-
+    
     # With lags, used as X, maybe this implementation is not optimal, think about a slicing way to do that?
     lags=range(1,rolling_window_size+1)
     X=data.lagged(Y,lags=lags)
     max_lags=max(lags)
     # We could also turn X into classes data, is that meaningful?
     # X=to_class(X,threshold)    
+
+    if output_type=="C":
+        Y=data.to_class(Y, threshold)
+
 
 ## Creating & calibrating the different algorithms
 
@@ -55,11 +58,11 @@ def __main__():
            "HM GEO Full window":HM(global_hyperparams,mean_type="geometric"),
            "HM AR Short Term":HM(global_hyperparams,window_size=10),
            "LR":LR(global_hyperparams),
-           "Lasso":LR(global_hyperparams, regularization="Lasso",hp_grid={"alpha":np.logspace(-5,0,10)}}
+           "Lasso":LR(global_hyperparams, regularization="Lasso",hp_grid={"alpha":np.logspace(-5,0,10)})}
     
     # Then we just allow ourselves to work/calib/fit/train only a subsets of these algos
     #algos_used=algos.keys()
-    algos_used=["HM AR Full window","LR"]
+    algos_used=["Lasso"]
 
     for key in algos_used:
         # We let each algo select the relevent data to work on
@@ -73,7 +76,7 @@ def __main__():
             pred_index=Y.index[i] # This is the timestamp of i
 
             # We train all the algos on the testing set, it includes the calibration of hyperparameters
-            algos[key].train(X_train,Y_train)
+            algos[key].calib(X_train,Y_train,pred_index, cross_val_type="ts_cv",n_splits=5,calib_type="GridSearch")
 
             # We build the predictions
             algos[key].predict(X_test,pred_index)
@@ -83,7 +86,7 @@ def __main__():
             
             # for debug
             print(i)
-       # print(algos[key].predicted_values)
+        print(algos[key].predicted_values)
 
 ## Core algorithm
 

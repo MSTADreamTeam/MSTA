@@ -2,10 +2,11 @@
 
 import pandas as pd
 import numpy as np
-
+import os
 
 def dataset_building(n_max=None):
-    price_data=pd.read_csv('data_fx.csv') 
+    cd=os.getcwd()
+    price_data=pd.read_csv(cd+'\\data\\data_fx.csv') 
     price_data.set_index(price_data.columns[0],inplace=True)
     price_data.index=pd.to_datetime(price_data.index,infer_datetime_format=True) # Speed optimized after testing
     

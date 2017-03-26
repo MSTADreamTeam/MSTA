@@ -1,10 +1,18 @@
-# This algorithm is the standard OLS Linear Regression, including the regularized versions
-# We use here the skilearn implementation of OLS
-
 from generic_algo import gen_algo
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 
 class LR(gen_algo):
+    """  This algorithm is the standard OLS Linear Regression, including the regularized versions Lasso, Ridge and Elastic
+    We use here the skilearn implementation of OLS
+        
+    Let us notice that the LR class can output regression and classification values as of now. However, the cross val only supports a regression scoring (MSE)
+    since the transformation from regression to classification is only done when outputting the results
+    For this reason it is advised not to use LR as a classification algorithm
+
+    For these algos, the CV could be done more efficiently directly using built in tools, because of the specific impact of the regularisation parameter
+    Hence, we will overload the train method for this algo later, for speed optimization purposes
+    """
+
     def __init__(self, global_hyperparams,regularization=None, hp_grid=None):
         gen_algo.__init__(self, global_hyperparams, hp_grid) # allow to run the init of the gen_algo class, and define all default arguments
         if regularization is None:
@@ -20,7 +28,8 @@ class LR(gen_algo):
             self.model=ElasticNet(normalize=True)
             self.name="Elastic Net"
         self.algo_type="ML"
-
+        self.output_type="R"
+        
 
         
         

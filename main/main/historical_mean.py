@@ -1,23 +1,29 @@
-# This algorithm will just take the historical mean as a prediction
-# It will be used as a benchmark for prediction as it represents the random walk hypothesis
-
 from generic_algo import gen_algo
 from data import to_class
+from sklearn_estimator_wrapper import sklearn_estimator
 import pandas as pd
 import numpy as np
 
 class HM(gen_algo):
+    """ Historical mean algorithm
+    This algorithm will just take the historical mean as a prediction
+    It includes arithmetic and geometric mean and allows for a non maximum window size
+    It will be used as a benchmark for prediction as it represents the random walk hypothesis
+    """
+
     def __init__(self, global_hyperparams, mean_type="arithmetic", window_size=None):
         gen_algo.__init__(self, global_hyperparams) # allow to run the init of the gen_algo class, and define all default arguments
         self.name="Historical Mean"
         self.algo_type="BA" # By convention
+        self.model=sklearn_estimator(self) # Useless without params, but for convention
         self.mean_type=mean_type
         if window_size is not None:   # It is possible to define a window size different from the global rolling window size, but it has to be less or equal
             self.window_size=window_size
         else:
             self.window_size=self.global_hyperparams["rolling_window_size"]
             
-    def predict(self, X_test, pred_index):
+    
+    def predict(self, X_test, pred_index=None):
         w = self.window_size
         if self.mean_type=="arithmetic":
             predicted_value=X_test.iloc[-w:].mean(axis=0,skipna=None)
@@ -32,7 +38,8 @@ class HM(gen_algo):
             threshold=self.global_hyperparams["threshold"]
             predicted_value=to_class(predicted_value, threshold)
 
-        self.predicted_values[pred_index]=predicted_value
+        if pred_index is not None:
+            self.predicted_values[pred_index]=predicted_value
         return predicted_value # here we have a redundency in the return and the side effect of the method, this is used to simplify coding
 
 ## testing code
