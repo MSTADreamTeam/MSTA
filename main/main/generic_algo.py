@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.base import BaseEstimator # Allows to define our algo as an sklearn estimator, allowing the GridSeatch function to recognize the predict, fit, and others methods
 from sklearn.model_selection import KFold, TimeSeriesSplit, GridSearchCV, RandomizedSearchCV
 from data import to_class
-from cross_validation import GridSearch
+from cross_validation import GridSearch, RandomSearch, GeneticAlgorithm
 
 class gen_algo():
     """ Predictive Algorithm mother class
@@ -35,6 +35,7 @@ class gen_algo():
     
         ## Outputs
         # For Regression
+        self.se=None
         self.mse=None 
         self.cum_rmse=None
         self.r2is=None
@@ -106,41 +107,50 @@ class gen_algo():
                 else:
                     scoring=scoring_type
                 if calib_type=="GridSearch":
-                    optimiser=GridSearchCV(self.sklearn_estimator,param_grid=hp_grid,cv=cv,scoring=scoring).fit(X_train,Y_train)
+                    optimiser=GridSearch(self,hp_grid=hp_grid,cv=cv,scoring=scoring).compute_cv(X_train,Y_train)
                 elif calib_type=="RandomSearch":
-                    optimiser=RandomizedSearchCV(self.sklearn_estimator,param_distributions=hp_grid,cv=cv,scoring=scoring,n_iter=n_iter).fit(X_train,Y_train)
+                    optimiser=RandomSearch(self,hp_grid=hp_grid,cv=cv,scoring=scoring,n_iter=n_iter).compute_cv(X_train,Y_train).compute_cv(X_train,Y_train)
                 elif calib_type=="GeneticAlgorithm":
-                    # This option is not coded yet
-                    optimizer=None
-                self.model=optimiser.best_estimator_
-                self.best_hp[pred_index]=optimiser.best_params_
+                    optimiser=GeneticAlgorithm(self,hp_grid=hp_grid,cv=cv,scoring=scoring).compute_cv(X_train,Y_train).compute_cv(X_train,Y_train)
+                self.set_params(**optimiser.best_hp)
+                self.best_hp[pred_index]=optimiser.best_hp
             else: # Case where we have a TA or BA algo
                 None # Not integrated yet
         else: # Here we do not calibrate the hyperparameters
             self.fit(X_train,Y_train)
         return self
 
-    def compute_outputs(self, Y):
+    def compute_outputs(self, Y, output_to_compute=[]):
         """ This function will compute all the desired outputs from the predicted data and the real data
         Check optimization here, the use of dataframe might not be the best 
         Since the class is inherited from BaseEstimator, it might not be necessary to recode the output manually,
         we might want to check if sklearn has functions doing this job manually
+        The not yet used argument output_to_compute will allow us to select to compute only a subset of all outputs to optimize speed
         """    
         if self.global_hyperparams["output_type"]=='R':
-            self.mse=((self.get_predicted_values()-Y)**2).mean(axis=0)
+            self.se=((self.get_output('predicted_values').items-Y)**2)
+            self.mse=self.se.mean(axis=0)
             # The other outputs are not coded yet
         else:
-            self.accuracy=(self.get_predicted_values()==Y).sum(axis=0)
+            self.good_pred=self.get_output('predicted_values')==Y
+            self.accuracy=(good_pred).sum(axis=0)
         return self
 
-    def get_predicted_values(self):
-        return pd.DataFrame.from_dict(self.predicted_values, orient='index')
+    def reset_outputs(self):
+        """ Used to reset the values of the output during the cross val, please keep updated with new outputs """        
+        # For Regression
+        self.se=None
+        self.mse=None 
+        self.cum_rmse=None
+        self.r2is=None
+        self.r2oos=None 
 
-    def get_real_values(self):
-        return pd.DataFrame.from_dict(self.real_values, orient='index')
+        # For Classification
+        self.accuracy=None
+        self.wrong_way_metric=None
 
-    def get_best_hp(self):
-        return pd.DataFrame.from_dict(self.best_hp, orient='index')
+    def get_output(self, key):
+        return pd.DataFrame.from_dict(getattr(self,key), orient='index')
 
     def __str__(self):
         return self.name

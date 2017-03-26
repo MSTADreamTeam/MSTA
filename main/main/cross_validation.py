@@ -43,8 +43,9 @@ class RandomSearch(CrossVal):
     """ RandomSearch 
         NOT CODED YET
     """
-    def __init__(self, algo, hp_grid, cv, scoring):
+    def __init__(self, algo, hp_grid, cv, scoring, n_iter):
         CrossVal.__init__(self, algo, hp_grid, cv, scoring)
+        self.n_iter=n_iter
     
     def compute_cv(self, X, Y):
         return super().compute_cv(X, Y)

@@ -89,7 +89,7 @@ def __main__():
         algos[key].compute_outputs(Y)
             
         # for debug
-        print(algos[key].predicted_values)
+        print(algos[key].get_output("predicted_values"))
 
 ## Core algorithm
 
