@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.base import BaseEstimator # Allows to define our algo as an sklearn estimator, allowing the GridSeatch function to recognize the predict, fit, and others methods
 from sklearn.model_selection import KFold, TimeSeriesSplit, GridSearchCV, RandomizedSearchCV
 from data import to_class
-from sklearn.base import BaseEstimator
+from cross_validation import GridSearch
 
 class gen_algo():
     """ Predictive Algorithm mother class
@@ -13,8 +13,7 @@ class gen_algo():
     QUESTION: Should we define a subclass for ML algos, avoiding the repetitive fitting/predicting code? We may need the equivalent for TA algos
     """
         
-    def __init__(self, global_hyperparams, hp_grid=None):
-        BaseEstimator.__init__(self)
+    def __init__(self, global_hyperparams, hp_grid=None, **hyperparams):
         ## General defining arguments
         self.name="Generic Algorithm"
         self.model=None # This attribute will recieve the sklearn estimator object for ML algos
@@ -23,13 +22,17 @@ class gen_algo():
         self.real_values={}
         self.selected_data=[] # List of column names from the main dataset 
         self.global_hyperparams=global_hyperparams # Dictionary of global hyperparameters
-        self._estimator_type="classifier" if algo.global_hyperparams["output_type"]=='C' else 'regressor' # This attribute is checked by sklearn cross val
         if hp_grid is not None:
             self.hp_grid=hp_grid # The hyperparameters grid used in GridSearch or RandomSearch
+           # self.set_params(**{param_key:param_values[0] for param_key, param_values in hp_grid.items()}) # Initialize the value of the hyperparams attributes with the first value in the hp_grid
         else:
             self.hp_grid={}
         self.best_hp={} # The best hyperparameters outputed by the cross validation
-
+        self.set_hyperparams(**hyperparams) # Set the fixed hyperparams of the model
+        #self.hyperparams_names=np.unique(list(hyperparams.keys())+list(hp_grid.keys())) # List all the names of hyperparams of the model
+        #self.sklearn_estimator=sklearn_estimator(self, **hyperparams) # This attribute will be a BaseEstimator instance used in cross validation, please do not confuse with model: model is used in predict and fit only for ML algos, and sklearn_estimator is used in calib, and is always defined
+        
+    
         ## Outputs
         # For Regression
         self.mse=None 
@@ -40,24 +43,21 @@ class gen_algo():
         # For Classification
         self.accuracy=None
         self.wrong_way_metric=None
-        
-    def get_params(self, deep=True):
-        """ Model Tunning Hyperparameters getter
-        The list of tuning parameters is defined from the hp_grid attribute, 
-        the deep argument is here for the function to be syntaxproof with sklearn
-        Please make sure all tuning parameters in hp_grid are defined with the same name as an attribute of the algo instance 
-        This function could be recoded so that it automatically creates the missing parameters, but we will first avoid it
-        """
-        return {param_key:getattr(self,param_key) for param_key in self.hp_grid.keys()}  
 
-    def set_params(self, **parameters):
-        """ Model Tunning Hyperparameters setter
+
+    def set_hyperparams(self, **parameters):
+        """ Hyperparameters setter used in cross validation
+        Please DO NOT modify any hyperparameters of the model directly, always use this function
         Directly derived from sklearn BaseEstimator, this implementation is not necessary since it is already inherited,
         for debugging purposes we will let it here for now though
         """
         for parameter, value in parameters.items():
-            self.setattr(parameter, value)
+            setattr(self, parameter, value)
+        if self.algo.model is not None: # Important not to forget to inherit the values of hyperparams to the model object
+            self.algo.model.set_params(**parameters)
         return self
+
+
 
     def select_data(self, X):
         """ Selecting data function
@@ -75,14 +75,15 @@ class gen_algo():
         """
         if self.algo_type=="ML":
             predicted_value=self.model.predict(X_test.values.reshape(1, -1))
+            if self.global_hyperparams["output_type"]=="C" and self.model._estimator_type!='classifier':
+                predicted_value=to_class(predicted_value, self.global_hyperparams["threshold"])    
         else:
             predicted_value=np.nan # Not integrated yet
-        if self.global_hyperparams["output_type"]=="C":
-            predicted_value=to_class(predicted_value, self.global_hyperparams["threshold"])
         if pred_index is not None:
             self.predicted_values[pred_index]=predicted_value[0] # Syntax check, need to work for array and single value prediction
         return predicted_value
  
+    
     def fit(self, X_train, Y_train):
         """ This method is used in the calib, it does a basic fitting, only works for ML algos """
         if self.algo_type=="ML":
@@ -91,7 +92,7 @@ class gen_algo():
             None # Not integrated yet
         return self
 
-    def calib(self, X_train, Y_train, pred_index=None, cross_val_type=None, hyperparams_grid=None, n_splits=10, calib_type=None,scoring_type=None,n_iter=None):
+    def calib(self, X_train, Y_train, pred_index=None, cross_val_type=None, hyperparams_grid=None, n_splits=10, calib_type=None, scoring_type=None, n_iter=10):
         """ The calib function defined here includes the calibration of hyperparameters and the fitting """
         if cross_val_type is not None: # We do the calibration by cross val
             hp_grid=self.hp_grid if hyperparams_grid is None else hyperparams_grid
@@ -105,9 +106,9 @@ class gen_algo():
                 else:
                     scoring=scoring_type
                 if calib_type=="GridSearch":
-                    optimiser=GridSearchCV(self.model,param_grid=hp_grid,cv=cv,scoring=scoring).fit(X_train,Y_train)
+                    optimiser=GridSearchCV(self.sklearn_estimator,param_grid=hp_grid,cv=cv,scoring=scoring).fit(X_train,Y_train)
                 elif calib_type=="RandomSearch":
-                    optimiser=RandomizedSearchCV(self.model,param_distributions=hp_grid,cv=cv,scoring=scoring,n_iter=n_iter).fit(X_train,Y_train)
+                    optimiser=RandomizedSearchCV(self.sklearn_estimator,param_distributions=hp_grid,cv=cv,scoring=scoring,n_iter=n_iter).fit(X_train,Y_train)
                 elif calib_type=="GeneticAlgorithm":
                     # This option is not coded yet
                     optimizer=None

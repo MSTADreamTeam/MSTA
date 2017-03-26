@@ -1,6 +1,5 @@
 from generic_algo import gen_algo
 from data import to_class
-from sklearn_estimator_wrapper import sklearn_estimator
 import pandas as pd
 import numpy as np
 
@@ -15,9 +14,8 @@ class HM(gen_algo):
         gen_algo.__init__(self, global_hyperparams) # allow to run the init of the gen_algo class, and define all default arguments
         self.name="Historical Mean"
         self.algo_type="BA" # By convention
-        self.model=sklearn_estimator(self) # Useless without params, but for convention
         self.mean_type=mean_type
-        if window_size is not None:   # It is possible to define a window size different from the global rolling window size, but it has to be less or equal
+        if window_size is not None:  # It is possible to define a window size different from the global rolling window size, but it has to be less or equal
             self.window_size=window_size
         else:
             self.window_size=self.global_hyperparams["rolling_window_size"]

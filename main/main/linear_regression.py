@@ -13,8 +13,8 @@ class LR(gen_algo):
     Hence, we will overload the train method for this algo later, for speed optimization purposes
     """
 
-    def __init__(self, global_hyperparams,regularization=None, hp_grid=None):
-        gen_algo.__init__(self, global_hyperparams, hp_grid) # allow to run the init of the gen_algo class, and define all default arguments
+    def __init__(self, global_hyperparams, hp_grid={}, regularization=None, **hyperparams):
+        gen_algo.__init__(self, global_hyperparams, hp_grid, **hyperparams) # allow to run the init of the gen_algo class, and define all default arguments
         if regularization is None:
             self.model=LinearRegression()
             self.name="Linear Regression"
@@ -28,8 +28,6 @@ class LR(gen_algo):
             self.model=ElasticNet(normalize=True)
             self.name="Elastic Net"
         self.algo_type="ML"
-        self.output_type="R"
-        
 
         
         
