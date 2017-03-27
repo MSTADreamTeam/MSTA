@@ -19,7 +19,7 @@ class gen_algo():
         self.model=None # This attribute will recieve the sklearn estimator object for ML algos
         self.algo_type=None # Has to be either ML for machine learning or TA for Technical Analysis, and BA for basic algorithms
         self.predicted_values={} # This dict of Date/Value will be converted in a dataframe later for optimization purposes
-        self.real_values={}
+        self.real_values={} # Not used yet, need to delete?
         self.selected_data=[] # List of column names from the main dataset 
         self.global_hyperparams=global_hyperparams # Dictionary of global hyperparameters
         if hp_grid is not None:
@@ -120,21 +120,39 @@ class gen_algo():
             self.fit(X_train,Y_train)
         return self
 
-    def compute_outputs(self, Y, output_to_compute=[]):
+    def compute_outputs(self, Y, output_to_compute=None):
         """ This function will compute all the desired outputs from the predicted data and the real data
         Check optimization here, the use of dataframe might not be the best 
-        Since the class is inherited from BaseEstimator, it might not be necessary to recode the output manually,
-        we might want to check if sklearn has functions doing this job manually
-        The not yet used argument output_to_compute will allow us to select to compute only a subset of all outputs to optimize speed
-        """    
-        if self.global_hyperparams["output_type"]=='R':
-            self.se=((self.get_output('predicted_values').items-Y)**2)
-            self.mse=self.se.mean(axis=0)
-            # The other outputs are not coded yet
+        It relies on the internal methods _compute, please keep the methods and the dicitonaries updated
+        """
+        output_r={"mse":_compute_mse,
+                     "se":_compute_se}
+        output_c={"good_pred":_compute_good_pred,
+                     "accuracy":_compute_accuracy}
+        output_dict=output_r if self.global_hyperparams["output_type"]=='R' else output_c
+        if output_to_compute is None:
+            output_keys=output_dict.keys()
         else:
-            self.good_pred=self.get_output('predicted_values')==Y
-            self.accuracy=(good_pred).sum(axis=0)
-        return self
+            output_keys=output_to_compute
+        return {key:self.output_dict[key](Y) for key in output_keys} # The return line will compute the outputs and give as an output the dictionary of values
+        
+
+    def _compute_se(self, Y):
+        return (self.get_output('predicted_values').items-Y)**2
+
+    def _compute_mse(self, Y):
+        if self.se is None:
+            self._output_compute_se(Y)
+        return self.se.mean(axis=0)
+
+    def _compute_good_pred(self, Y):
+        return self.get_output('predicted_values')==Y
+    
+    def _compute_accuracy(self, Y):
+        if self.good_pred is None:
+            self._compute_good_pred(Y)
+        return self.good_pred.mean(axis=0)
+       
 
     def reset_outputs(self):
         """ Used to reset the values of the output during the cross val, please keep updated with new outputs """        
