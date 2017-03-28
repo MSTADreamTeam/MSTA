@@ -6,7 +6,7 @@ from data import to_class
 from cross_validation import CrossVal
 from collections import OrderedDict
 
-class gen_algo():
+class gen_algo:
     """ Predictive Algorithm mother class 
     Here is implemented most of the common code performed by algos, including the fit, predict and calib functions
     For TA algos the predict function is often overloaded
@@ -22,11 +22,8 @@ class gen_algo():
         self.real_values=[] # Not used yet, need to delete?
         self.selected_data=[] # List of column names from the main dataset 
         self.global_hyperparams=global_hyperparams # Dictionary of global hyperparameters
-        if hp_grid is not None:
-            self.hp_grid=hp_grid # The hyperparameters grid used in the CV
-           # self.set_params(**{param_key:param_values[0] for param_key, param_values in hp_grid.items()}) # Initialize the value of the hyperparams attributes with the first value in the hp_grid
-        else:
-            self.hp_grid={}
+        self.hp_grid=hp_grid # The hyperparameters grid used in the CV
+        # self.set_params(**{param_key:param_values[0] for param_key, param_values in hp_grid.items()}) # Initialize the value of the hyperparams attributes with the first value in the hp_grid
         self.best_hp=[] # The best hyperparameters outputed by the cross validation
         self.set_hyperparams(**hyperparams) # Set the fixed hyperparams of the model
         #self.hyperparams_names=np.unique(list(hyperparams.keys())+list(hp_grid.keys())) # List all the names of hyperparams of the model
@@ -86,8 +83,12 @@ class gen_algo():
  
     def _store_predicted_values(self, pred_index, pred_values):
         """ Used to store the predicted values properly """
-        self.predicted_values.append(pred_values)
-        self.pred_index.append(pred_index)
+        if len(pred_values)==1:
+            self.predicted_values.append(pred_values[0])
+            self.pred_index.append(pred_index)
+        else:
+            self.predicted_values+=list(pred_values)
+            self.pred_index+=list(pred_index)
         return self
     
     def fit(self, X_train, Y_train):
@@ -101,8 +102,8 @@ class gen_algo():
 
     def calib(self, X_train, Y_train, pred_index=None, cross_val_type=None, hyperparams_grid=None, n_splits=10, calib_type=None, scoring_type=None, n_iter=10):
         """ The calib function defined here includes the calibration of hyperparameters and the fitting """
-        if cross_val_type is not None: # We do the calibration by cross val
-            hp_grid=self.hp_grid if hyperparams_grid is None else hyperparams_grid
+        hp_grid=self.hp_grid if hyperparams_grid is None else hyperparams_grid
+        if cross_val_type is not None and hp_grid is not None: # We do the calibration by cross val
             if cross_val_type=="k_folds":
                 cv=KFold(n_splits,shuffle=False)        
             elif cross_val_type=="ts_cv":
@@ -123,27 +124,22 @@ class gen_algo():
         Check optimization here, the use of dataframe might not be the best
         It relies on the internal methods _compute, please keep the methods and the dictionaries updated
         """
-        # For the dictionary, please make sure that you always put after the outputs which needs other outputs, it is the reason why we use OrderedDict here, otherwise the hash kills the order
-        # It will avoid calculating them twice
         # Let us notice that defining a dictionary of functions is very non python way of coding, we might want to think of a best way
    
         pred_val=pred_val if pred_val is not None else np.array(self.predicted_values)            
 
-        output_r=OrderedDict()
-        output_r["se"]=self._compute_se
-        output_r["mse"]=self._compute_mse
-        output_r["nmse"]=self._compute_nmse
-
-        output_c=OrderedDict()
-        output_c["good_pred"]=self._compute_good_pred
-        output_c["accuracy"]=self._compute_accuracy
+        output_r={"se":self._compute_se,
+                  "mse":self._compute_mse,
+                  "nmse":self._compute_nmse}
+        output_c={"good_pred":self._compute_good_pred,
+                  "accuracy":self._compute_accuracy}
 
         output_dict=output_r if self.global_hyperparams["output_type"]=='R' else output_c
 
-        if output_to_compute is None:
-            output_keys=output_dict.keys()
-        else:
+        if output_to_compute:
             output_keys=output_to_compute
+        else:
+            output_keys=output_dict.keys()
         return {key:output_dict[key](Y, pred_val) for key in output_keys} # The return line will compute the outputs and give as an output the dictionary of values
         
     def _compute_se(self, Y, pred_val):
@@ -192,7 +188,7 @@ class gen_algo():
         External use only
         This can be applied on all np.array stocking values such as: best_hp, mse, good_pred, ...
         """
-        return pd.DataFrame(getattr(self,key),index=self.pred_index, orient='index')
+        return pd.DataFrame(getattr(self,key),index=self.pred_index)
 
     def __str__(self):
         return self.name

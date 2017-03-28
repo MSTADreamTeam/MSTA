@@ -1,7 +1,8 @@
 # We had to recode these basic functions in order to make them compatible with our architecture
 
-from sklearn.model_selection import ParameterGrid, ParameterSampler
 import numpy as np
+from sklearn.model_selection import ParameterGrid, ParameterSampler
+from genetic_algorithm import GeneticAlgorithm
 
 class CrossVal():
     """ Cross Validation general class for GridSearch, RandomSearch, and GeneticAlgorithm
@@ -23,8 +24,7 @@ class CrossVal():
         elif calib_type=='RandomSearch':
             self.hp_iterator=ParameterSampler(self.hp_grid, n_iter)
         elif calib_type=='GeneticAlgorithm':
-            self.hp_iterator=None # Not coded yet
-
+            self.hp_iterator=GeneticAlgorithm(self.hp_grid, n_iter)
     
     def compute_cv(self, X, Y):
         """ Function that operate the cross validation

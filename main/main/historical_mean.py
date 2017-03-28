@@ -10,8 +10,8 @@ class HM(gen_algo):
     It will be used as a benchmark for prediction as it represents the random walk hypothesis
     """
 
-    def __init__(self, global_hyperparams, mean_type="arithmetic", window_size=None):
-        gen_algo.__init__(self, global_hyperparams) # allow to run the init of the gen_algo class, and define all default arguments
+    def __init__(self, global_hyperparams, hp_grid=None, mean_type="arithmetic", window_size=None):
+        gen_algo.__init__(self, global_hyperparams, hp_grid) # allow to run the init of the gen_algo class, and define all default arguments
         self.name="Historical Mean"
         self.algo_type="BA" # By convention
         self.mean_type=mean_type
@@ -24,21 +24,22 @@ class HM(gen_algo):
     def predict(self, X_test, pred_index=None):
         w = self.window_size
         if self.mean_type=="arithmetic":
-            predicted_value=X_test.iloc[-w:].mean(axis=0,skipna=None)
+            predicted_values=np.atleast_1d(X_test.iloc[-w:].mean(axis=0,skipna=None))
         elif self.mean_type=="geometric":
+        # Let us note that the geometric mean should be optimized using numpy vectorized operations
             predicted_value=1
             for idx in X_test.iloc[-w:].index:
-                predicted_value=predicted_value*(1+X_test.loc[idx])
-            predicted_value=np.power(predicted_value,1/w)-1
+                predicted_values=predicted_values*(1+X_test.loc[idx])
+            predicted_values=np.power(predicted_values,1/w)-1
             
         # The output will be different in case of a regression or classification, no need to change the output for a regression
         if self.global_hyperparams["output_type"]=="C":
             threshold=self.global_hyperparams["threshold"]
-            predicted_value=to_class(predicted_value, threshold)
+            predicted_values=to_class(predicted_values, threshold)
 
         if pred_index is not None:
-            self._store_predicted_values(pred_index,predicted_value)
-        return predicted_value # here we have a redundency in the return and the side effect of the method, this is used to simplify coding
+            self._store_predicted_values(pred_index,predicted_values)
+        return predicted_values # here we have a redundency in the return and the side effect of the method, this is used to simplify coding
 
 ## testing code
 #import matplotlib.pyplot as pyplt

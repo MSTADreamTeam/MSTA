@@ -31,7 +31,7 @@ def __main__():
                         "threshold":threshold}    
 
 ## Building the dataset
-    dataset=data.dataset_building(n_max=500)
+    dataset=data.dataset_building(n_max=250)
     
     # We select an asset returns time series to predict from the dataset
     asset_label="EURUSD Curncy"
@@ -57,7 +57,7 @@ def __main__():
     # First define a dictionary of algorithm associated with their names
     # As arguments please include the fixed hyperparams of the model as a named argument
     # For the hyperparameters grid to use in cross validation please provide a dictionary using sklearn syntax 
-    algos={"HM AR Full window":HM(global_hyperparams,window_size=10),
+    algos={"HM AR Full window":HM(global_hyperparams,window_size=10,hp_grid={'window_size':[1,10,50,100]}),
            "HM GEO Full window":HM(global_hyperparams,mean_type="geometric"),
            "HM AR Short Term":HM(global_hyperparams,window_size=10),
            "LR":LR(global_hyperparams),
@@ -65,7 +65,9 @@ def __main__():
     
     # Then we just allow ourselves to work/calib/fit/train only a subsets of these algos
     #algos_used=algos.keys()
-    algos_used=["Lasso"]
+    #algos_used=["Lasso"]
+    algos_used=["HM AR Full window"]
+
 
     for key in algos_used:
         # We let each algo select the relevent data to work on
@@ -89,7 +91,7 @@ def __main__():
         algos[key].compute_outputs(Y)
             
         # for debug
-        print(algos[key].get_output("predicted_values"))
+        pass
 
 ## Core algorithm
 

@@ -38,7 +38,7 @@
     <Compile Include="cross_validation.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="sklearn_estimator_wrapper.py">
+    <Compile Include="genetic_algorithm.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="test_tf.py">
