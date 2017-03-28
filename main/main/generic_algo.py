@@ -49,9 +49,10 @@ class gen_algo:
         """ Hyperparameters setter used in cross validation
         Please DO NOT modify any hyperparameters of the model directly, 
         always use this function to make sure it also impacts the model attribute when needed.
+        This function should not create new hyperparameters
         """
-        for parameter, value in parameters.items(): # Is that necessary to do that for ML algos?? as of now let us keep it for compatibility purposes
-            setattr(self, parameter, value)
+        for parameter, value in parameters.items(): 
+            if hasattr(self, parameter): setattr(self, parameter, value) 
         if self.model is not None: # Important not to forget to inherit the values of hyperparams to the model object
             self.model.set_params(**parameters)
         return self
