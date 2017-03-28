@@ -37,7 +37,7 @@ class HM(gen_algo):
             predicted_value=to_class(predicted_value, threshold)
 
         if pred_index is not None:
-            self.predicted_values[pred_index]=predicted_value
+            self._store_predicted_values(pred_index,predicted_value)
         return predicted_value # here we have a redundency in the return and the side effect of the method, this is used to simplify coding
 
 ## testing code

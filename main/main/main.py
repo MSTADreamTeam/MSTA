@@ -76,11 +76,11 @@ def __main__():
             test=i # I am not sure of the index, we can check
             pred_index=Y.index[test] # This is the timestamp of i
 
-            # We train all the algos on the testing set, it includes the calibration of hyperparameters
-            algos[key].calib(X[train],Y[train],pred_index, cross_val_type="ts_cv",n_splits=5,calib_type="GridSearch")
+            # We train all the algos on the testing set, it includes the calibration of hyperparameters and the fitting
+            algos[key].calib(X.iloc[train],Y.iloc[train],pred_index, cross_val_type="ts_cv",n_splits=5,calib_type="GridSearch")
 
             # We build the predictions
-            algos[key].predict(X[test],pred_index)
+            algos[key].predict(X.iloc[test],pred_index)
 
             # for debug
             print(i)
