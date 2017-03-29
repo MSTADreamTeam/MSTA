@@ -1,10 +1,13 @@
-## This file will take care of dataset building
+## This file will take care of dataset building and all other work on data
 
 import pandas as pd
 import numpy as np
 import os
 
 def dataset_building(n_max=None):
+    """ Build the dataset
+    For future datasets please improve this function with arguments to indicate how to build it
+    """
     cd=os.getcwd()
     price_data=pd.read_csv(cd+'\\data\\data_fx.csv') 
     price_data.set_index(price_data.columns[0],inplace=True)
@@ -23,7 +26,8 @@ def dataset_building(n_max=None):
     return return_data
 
 
-def lagged(df,lags): # add lags in a dataframe
+def lagged(df,lags): 
+    """ Add lags in a dataframe """
     # It would be better to code a version of this function using reference shifting instead of copying data    
     dfs=[pd.DataFrame(index=df.index)]
     for lag in lags: # add lags of y
@@ -38,3 +42,10 @@ def to_class(input, threshold=0):
     output=(abs(input)>threshold)*np.sign(input) # Syntax using Bool*Float multiplication and DataFrame operations, be careful with the -0.0 though
     return output
         
+
+def core_dataset(algos, algos_used):
+    """ Built a core dataset using predictions from the algos """
+    list_df=[]
+    for key in algos_used:
+        list_df.append(algos[key].get_output('predicted_values'))
+    return pd.concat(list_df, axis=0)    

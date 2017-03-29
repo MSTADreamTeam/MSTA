@@ -84,12 +84,9 @@ class gen_algo:
  
     def _store_predicted_values(self, pred_index, pred_values):
         """ Used to store the predicted values properly """
-        if len(pred_values)==1:
-            self.predicted_values.append(pred_values[0])
-            self.pred_index.append(pred_index)
-        else:
-            self.predicted_values+=list(pred_values)
-            self.pred_index+=list(pred_index)
+        pred_values=np.atleast_1d(pred_values)
+        self.predicted_values+=list(pred_values)
+        self.pred_index+=list(pred_index)
         return self
     
     def fit(self, X_train, Y_train):
@@ -122,13 +119,12 @@ class gen_algo:
 
     def compute_outputs(self, Y, pred_val=None,*output_to_compute):
         """ This function will compute all the desired outputs from the predicted data and the real data
-        Check optimization here, the use of dataframe might not be the best
         It relies on the internal methods _compute, please keep the methods and the dictionaries updated
         """
         # Let us notice that defining a dictionary of functions is very non python way of coding, we might want to think of a best way
    
         pred_val=pred_val if pred_val is not None else np.array(self.predicted_values)            
-
+        Y= Y.iloc[:,0].values if len(Y)==len(pred_val) else Y.loc[self.pred_index].iloc[:,0].values # Turn Y in an array
         output_r={"se":self._compute_se,
                   "mse":self._compute_mse,
                   "nmse":self._compute_nmse}
@@ -160,7 +156,7 @@ class gen_algo:
         return self.nmse
 
     def _compute_good_pred(self, Y, pred_val):
-        self.good_pred=pred_val==Y.values
+        self.good_pred=pred_val==Y
         return self.good_pred
     
     def _compute_accuracy(self, Y, pred_val):
@@ -185,9 +181,9 @@ class gen_algo:
         self.wrong_way_metric=None
 
     def get_output(self, key):
-        """ Turn an np.array outout into a proper DataFrame
+        """ Turn an np.array output into a proper DataFrame
         External use only
-        This can be applied on all np.array stocking values such as: best_hp, mse, good_pred, ...
+        This can be applied on all np.array stocking values at each prediction such as: best_hp, mse, good_pred, ...
         """
         return pd.DataFrame(getattr(self,key),index=self.pred_index)
 

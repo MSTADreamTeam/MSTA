@@ -41,6 +41,9 @@
     <Compile Include="genetic_algorithm.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="core_base_algos.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="test_tf.py">
       <SubType>Code</SubType>
     </Compile>

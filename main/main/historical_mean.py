@@ -24,12 +24,12 @@ class HM(gen_algo):
     def predict(self, X_test, pred_index=None):
         w = self.window_size
         if self.mean_type=="arithmetic":
-            predicted_values=np.atleast_1d(X_test.iloc[-w:].mean(axis=0,skipna=None))
+            predicted_values=X_test.iloc[:,:w].mean(axis=1,skipna=None)
         elif self.mean_type=="geometric":
         # Let us note that the geometric mean should be optimized using numpy vectorized operations
-            predicted_value=1
-            for idx in X_test.iloc[-w:].index:
-                predicted_values=predicted_values*(1+X_test.loc[idx])
+            predicted_values=1
+            for col in X_test.iloc[:,:w].columns:
+                predicted_values=predicted_values*(1+X_test.iloc[:,col])
             predicted_values=np.power(predicted_values,1/w)-1
             
         # The output will be different in case of a regression or classification, no need to change the output for a regression
