@@ -155,14 +155,17 @@ Please note than when only the name of the paper is given, you can find it on th
 * Main paper, but pretty basic, to read first, results are mainly cheated because of overfitting:
 Intelligent stock trading system based on improved technical analysis and Echo State Network
 
+* Similar article focused on ESN by same authors than first one:
+http://web.inf.ufpr.br/menotti/ci171-2015-2-1/files/seminario-Dennis-artigo.pdf
+
 * Details about how to transform price data into "high level price data":
 Intelligent stock trading system by turning point confirming and probabilistic reasoning
 
 * More complex, here they use GA as a core algo to mix differents MLs methods to predict:
 An evolutionary approach to the combination of multiple classifiers to predict a stock price index
 
-* Similar article focused on ESN by same authors than first one:
-http://web.inf.ufpr.br/menotti/ci171-2015-2-1/files/seminario-Dennis-artigo.pdf
+* Paper about GA used in Finance:
+http://www.aiecon.org/staff/shc/pdf/IDEAL983.pdf
 
 * Interesting paper, it covers the use of NN for time series prediction, seems fancy ass complicated tho:
 https://arxiv.org/pdf/1703.01887.pdf
