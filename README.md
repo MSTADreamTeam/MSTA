@@ -11,6 +11,8 @@ Investigate the stock return patterns such as short term mean momentum, medium t
 
 ## Data
 
+Working on the dataset is very important, please do not forget that whichever algo we use, we cannot create new information, only try to describe it.
+
 The data will be recovered from BBG or other source for the first daily dataset. Then we can use IG HTTP protocols to build dataset live and trade live.
 
 Here is the type of data we could include, in order of estimated importance:
