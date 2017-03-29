@@ -94,8 +94,6 @@ class gen_algo:
         only works for ML algos, it does not do anything for TA or BA algos since usually they do not need any fit """
         if self.algo_type=="ML":
             self.model.fit(X_train,Y_train)
-        else: # Case where we have a TA or BA algo
-            None # Not integrated yet
         return self
 
     def calib(self, X_train, Y_train, pred_index=None, cross_val_type=None, hyperparams_grid=None, n_splits=10, calib_type=None, scoring_type=None, n_iter=10):

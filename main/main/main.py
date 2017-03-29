@@ -64,8 +64,8 @@ def __main__():
     
     # Then we just allow ourselves to work/calib/fit/train only a subsets of these algos
     #algos_used=algos.keys()
-    #algos_used=["Lasso"]
-    algos_used=["HM AR Full window"]
+    algos_used=["Lasso"]
+    #algos_used=["HM AR Full window"]
     #algos_used=["HM GEO Full window"]
 
 
