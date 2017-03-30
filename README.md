@@ -169,6 +169,9 @@ An evolutionary approach to the combination of multiple classifiers to predict a
 * Paper about GA used in Finance:
 http://www.aiecon.org/staff/shc/pdf/IDEAL983.pdf
 
+* About the Stochastic Acceptance Algorithm used in the Selection Phase of the GA:
+https://arxiv.org/pdf/1109.3627.pdf
+
 * Interesting paper, it covers the use of NN for time series prediction, seems fancy ass complicated tho:
 https://arxiv.org/pdf/1703.01887.pdf
 
