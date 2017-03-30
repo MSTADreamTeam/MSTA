@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>b494e5db-59ac-432f-862b-82dfe96260dc</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>main.py</StartupFile>
+    <StartupFile>__main__.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,7 +25,7 @@
     <Compile Include="generic_algo.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="main.py" />
+    <Compile Include="__main__.py" />
     <Compile Include="data.py">
       <SubType>Code</SubType>
     </Compile>

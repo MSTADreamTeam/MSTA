@@ -5,13 +5,14 @@ from sklearn.model_selection import ParameterGrid, ParameterSampler
 from genetic_algorithm import GeneticAlgorithm
 
 class CrossVal():
-    """ Cross Validation general class for GridSearch, RandomSearch, and GeneticAlgorithm
-        GridSearch 
-    Performs an Exhaustive Search for optimal hyperparameters inside a cross validation process
-        RandomSearch 
-    Performs a Random Search for optimal hyperparameters inside a cross validation process
-        GeneticAlgorithm
-        NOT CODED YET
+    """ Cross Validation
+    Search for optimal hyperparameters inside a cross validation process
+    -GridSearch: 
+        Performs an exhaustive search
+    -RandomSearch: 
+        Performs a random search
+    -GeneticAlgorithm:
+        Performs an optimized random search
     """
     def __init__(self, algo, calib_type, hp_grid, cv, scoring, n_iter=None):
         self.cv=cv
@@ -27,10 +28,7 @@ class CrossVal():
             self.hp_iterator=GeneticAlgorithm(self.hp_grid, n_iter)
     
     def compute_cv(self, X, Y):
-        """ Function that operate the cross validation
-        Let us notive that this code is similar for the three different cross validation
-        However the iterator that will yield the tested parameters differs
-        """
+        """ Cross validation process """
         best_score=-np.Inf
         for hp in self.hp_iterator: 
             self.algo.set_hyperparams(**hp)

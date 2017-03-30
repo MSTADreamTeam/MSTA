@@ -20,7 +20,7 @@ class GeneticAlgorithm:
         """
         n_iter = 0
         self.pop_scores=[]
-        self.population=list(ParameterSampler(hp_grid, self.init_pop_size)) # First population is random, we turn it into list to fix it
+        self.population=list(ParameterSampler(self.hp_grid, self.init_pop_size)) # First population is random, we turn it into list to fix it
         self.generation=0
         while True:
             for hp in self.population:
@@ -28,7 +28,7 @@ class GeneticAlgorithm:
                     yield hp 
                 else:
                     break
-                n += 1
+                n_iter += 1
             self.selection()
             self.crossover()
             self.mutate()
@@ -68,19 +68,21 @@ class GeneticAlgorithm:
         return self
 
     def mutate(self):
-        """ This function executes the mutation phase:
+        """ This function executes the mutation phase
         It will randomly change a small subset of the population
         It allows the algorith to avoid local optimum
-        Hyperparameters: the mutation probability of a population member, it should be very low, 10% max
+        Hyperparameter: the mutation probability of a population member, it should be very low, 10% max
          """
         # need to code here
         return self    
 
-        
-
     def update_score(self, score):
-        """ This method allows for an external frame to modify the iterator during the execution of the loop
+        """ This method allows for an external scope to modify the iterator during the execution of the loop
         It is used to update the score of the tested valued to do the mutation process at the next step
         """
         self.pop_scores.append(score)
         return self
+
+    def __len__(self):
+        return self.n_iter
+        

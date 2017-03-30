@@ -85,8 +85,8 @@ class gen_algo:
     def _store_predicted_values(self, pred_index, pred_values):
         """ Used to store the predicted values properly """
         pred_values=np.atleast_1d(pred_values)
-        self.predicted_values+=list(pred_values)
         self.pred_index+=list(pred_index)
+        self.predicted_values+=list(pred_values)
         return self
     
     def fit(self, X_train, Y_train):
