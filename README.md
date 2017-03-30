@@ -193,6 +193,9 @@ https://pdfs.semanticscholar.org/8922/17bb82c11e6e2263178ed20ac23db6279c7a.pdf
 * General article about when the historical mean can be beaten as a predictor and why:
 http://statweb.stanford.edu/~ckirby/brad/other/Article1977.pdf
 
+* Veru interesting article about why there is natural biais in human decision making
+http://isites.harvard.edu/fs/docs/icb.topic470237.files/articles%20spring%202008/Judgement%20under%20uncertainty%20readings/belief%20in%20the%20law%20of%20small%20numbers.pdf
+
 * Quantopian article about Mean Reverting algorithms, focused on news impact, very interesting:
 http://quantopian.us5.list-manage2.com/track/click?u=4c1d0cf4959586b47ef210e9c&id=42172f3a9e&e=135bb3f5c5
 
