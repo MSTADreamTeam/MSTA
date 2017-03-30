@@ -1,16 +1,15 @@
 # This file defines the Generic Algorithm iterator used in cross validation
 import numpy as np
 from sklearn.model_selection import ParameterSampler
-
+from random import sample
 
 class GeneticAlgorithm:
     """ Genetic Algorithm iterator """
-    def __init__(self, hp_grid, n_max, init_pop_size=None, n_parents=2, select_rate=0.5, mixing_ratio=0.5, mutation_proba=0.1):
+    def __init__(self, hp_grid, n_max, init_pop_size=None, select_rate=0.5, mixing_ratio=0.5, mutation_proba=0.1):
         """ In the __init__ are defined the fixed parameters """
         self.n_max=n_max
         self.hp_grid=hp_grid
         self.init_pop_size=init_pop_size
-        self.n_parents=n_parents
         self.mutation_proba=mutation_proba
         self.select_rate=select_rate
         
@@ -41,7 +40,8 @@ class GeneticAlgorithm:
         It will select a subset of the population as the survivors
         to be used in the mutation and crossover processes
         The seection is based on scoring
-        Hyperparameter: The selection rate, which determines the exponential rate at which the population will decrease generation after generation
+        Hyperparameter: The selection rate, which determines the exponential rate at which the population 
+        will decrease generation after generation.
         """
         list_to_sort=[(hp,score) for hp in zip(self.pop_scores,self.population)]
         self.population=np.sort(list_to_sort, axis=1)[:floor(len(self.population)*self.select_rate)][0]
@@ -50,14 +50,22 @@ class GeneticAlgorithm:
 
     def crossover(self):
         """ This fuction executes the crossover phase
-        It will create a new population my genetically mixing the past population
-        Each new population member will inherit from a fixed number of parents
-        The parents are randomly choosen
+        It will create a new population by genetically mixing the past population
+        Each new population member will inherit from a fixed number of randomly chosen parents
         This mixing allow the convergence to the optimum
-        Hyperparameter: the mixing rate, which determines the proportion of changed features from one generation to another
+        Hyperparameter: the mixing rate, which determines the proportion of
+        changed features from one generation to another
+        We fixed the number of parents to 2 in this implementation
         """
-        # need to code here
-        return self    
+        new_pop=[]
+        while len(new_pop)<=len(self.population):
+            parents=sample(self.population, 2) # We select two random parents, note that a parent can be selected several times
+            crossover_points=sample(hp.keys(), floor(self.mixing_ratio*len(hp))) # this defines the keys of the hyperparameters that will be mixed
+            temp={key:parents[0][key] for key in crossover_points}
+            new_pop.append(parrent[0].update({key:parents[1][key] for key in crossover_points}))
+            new_pop.append(parrent[1].update(temp))
+        self.population=new_pop
+        return self
 
     def mutate(self):
         """ This function executes the mutation phase:
