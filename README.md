@@ -13,7 +13,9 @@ Investigate the stock return patterns such as short term mean momentum, medium t
 
 Working on the dataset is very important, please do not forget that whichever algo we use, we cannot create new information, only try to describe it.
 
-The data will be recovered from BBG or other source for the first daily dataset. Then we can use IG HTTP protocols to build dataset live and trade live.
+The data will be recovered from BBG or other source for the first daily dataset. Then we can use the API stream to build live dataset.
+
+We can also use other data from the API, such as Quantopian and Quantdl datasets.
 
 Here is the type of data we could include, in order of estimated importance:
 * Price data (Close for daily, and Bid/Ask for Intraday)
