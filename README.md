@@ -205,6 +205,9 @@ http://quantopian.us5.list-manage2.com/track/click?u=4c1d0cf4959586b47ef210e9c&i
 * Reference paper on Short Term Mean Reversion:
 https://papers.ssrn.com/sol3/papers.cfm?abstract_id=436663
 
+* About the Trading Strat:
+https://www.quantopian.com/posts/mad-portfolio-an-alternative-to-markowitz
+
 * Website presenting lots of Neural Nets:
 http://www.asimovinstitute.org/neural-network-zoo/
 
