@@ -13,7 +13,9 @@ Investigate the stock return patterns such as short term mean momentum, medium t
 
 Working on the dataset is very important, please do not forget that whichever algo we use, we cannot create new information, only try to describe it.
 
-The data will be recovered from BBG or other source for the first daily dataset. Then we can use IG HTTP protocols to build dataset live and trade live.
+The data will be recovered from BBG or other source for the first daily dataset. Then we can use the API stream to build live dataset.
+
+We can also use other data from the API, such as Quantopian and Quantdl datasets.
 
 Here is the type of data we could include, in order of estimated importance:
 * Price data (Close for daily, and Bid/Ask for Intraday)
@@ -148,7 +150,17 @@ We could invest with a size inversely proportional to the variance, to define th
 
 To conclude it would be interesing to code it using an set of input risk criterias, and let the algo optimiwe the trading strategy as a result.
 
-To trade we can either connect to IG using a python library or directly use Quantopian. The IG API also provides live price information!
+## Trading
+
+We can trade using these following ways:
+* Quantopian: this option might be complicated given the size of the code and the external libraries used, however we mighe be able to import external files such as a trading log and use it in the Quantipian environment.
+* Zipline: a python library developped by quantopian for algo trading allowing to backtest and run algorithm, it seems to include part of quantopian data and Quantdl data
+* IG: online broker providing a trading and date stream API
+* IB: InteractiveBrokers, similar to IG
+
+
+In order to comunicate with the trading API we might need to code in another language such as C++, or use HTTP protocols.
+
 
 ## References & useful links
 
@@ -204,6 +216,9 @@ http://quantopian.us5.list-manage2.com/track/click?u=4c1d0cf4959586b47ef210e9c&i
 
 * Reference paper on Short Term Mean Reversion:
 https://papers.ssrn.com/sol3/papers.cfm?abstract_id=436663
+
+* About the Trading Strat:
+https://www.quantopian.com/posts/mad-portfolio-an-alternative-to-markowitz
 
 * Website presenting lots of Neural Nets:
 http://www.asimovinstitute.org/neural-network-zoo/
