@@ -148,7 +148,13 @@ We could invest with a size inversely proportional to the variance, to define th
 
 To conclude it would be interesing to code it using an set of input risk criterias, and let the algo optimiwe the trading strategy as a result.
 
-To trade we can either connect to IG using a python library or directly use Quantopian. The IG API also provides live price information!
+## Trading
+
+We can trade using these following ways:
+* Quantopian: this option might be complicated given the size of the code and the external libraries used, need to investigate
+* IG: online broker providing a trading and date stream API
+* IB: InteractiveBrokers, similar to IG
+
 
 ## References & useful links
 
