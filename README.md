@@ -74,8 +74,8 @@ More advanced:
 
 All the algo needs to have a similar structure, hence we will build a general abstract class algo with the following attributes:
 *	Predict function: function that gives a Y_test given a X_test
-*	Select data function: manual or algo way to select variables from the main dataset
-*	Train function: function that will train and calibrate the model on a Y_train and X_train subsets of obs. It will include the calibration of hyperparameters (check bellow)
+*	Select data function: manual or algorithmic way to select variables from the main dataset
+*	Calib function: function that will train and calibrate the model on a Y_train and X_train subsets of obs. It will include the calibration of hyperparameters (check bellow)
 
 The algos will be coded as subclass of the generic algo class, with overloaded methods. Here are a sample of possible algos:
 
