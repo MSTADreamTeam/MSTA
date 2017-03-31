@@ -152,7 +152,7 @@ To conclude it would be interesing to code it using an set of input risk criteri
 
 We can trade using these following ways:
 * Quantopian: this option might be complicated given the size of the code and the external libraries used, however we mighe be able to import external files such as a trading log and use it in the Quantipian environment.
-* Zipline: a python library developped by quantopian for algo trading allowing to backtest and run algorithm
+* Zipline: a python library developped by quantopian for algo trading allowing to backtest and run algorithm, it seems to include part of quantopian data and Quantdl data
 * IG: online broker providing a trading and date stream API
 * IB: InteractiveBrokers, similar to IG
 
