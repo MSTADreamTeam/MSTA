@@ -151,7 +151,7 @@ To conclude it would be interesing to code it using an set of input risk criteri
 ## Trading
 
 We can trade using these following ways:
-* Quantopian: this option might be complicated given the size of the code and the external libraries used, need to investigate
+* Quantopian: this option might be complicated given the size of the code and the external libraries used, however we mighe be able to import external files such as a trading log and use it in the Quantipian environment.
 * IG: online broker providing a trading and date stream API
 * IB: InteractiveBrokers, similar to IG
 
