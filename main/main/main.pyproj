@@ -25,6 +25,12 @@
     <Compile Include="generic_algo.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tree.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="trading_strategy.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="__main__.py" />
     <Compile Include="data.py">
       <SubType>Code</SubType>

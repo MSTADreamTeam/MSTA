@@ -4,45 +4,48 @@ from sklearn.model_selection import ParameterSampler
 from random import sample
 
 class GeneticAlgorithm:
-    """ Genetic Algorithm iterator """
-    def __init__(self, hp_grid, n_max, init_pop_size=None, select_rate=0.5, mixing_ratio=0.5, mutation_proba=0.1, variance_ratio=0.1):
-        """ In the __init__ are defined the fixed parameters """
+    ''' Genetic Algorithm iterator
+    From a ramdomly generated initial population, the algorithm will improve it generation after generation
+    The process of improvment is based on the selection, crossover and mutation phases applied at each new generation
+    '''
+    def __init__(self, hp_grid, n_max=10, init_pop_size=5, select_rate=0.5, mixing_ratio=0.5, mutation_proba=0.1, variance_ratio=0.1):
+        ''' In the __init__ are defined the fixed parameters '''
         self.n_max=n_max
         self.hp_grid=hp_grid
         self.init_pop_size=init_pop_size
         self.mutation_proba=mutation_proba
         self.select_rate=select_rate
-        self.vars={key:self.variance_ratio*len(self.hp_grid[key]) for key in self.hp_grid}  # Used in the mutation phase      
+        self.vars={key:variance_ratio*len(self.hp_grid[key]) for key in self.hp_grid}  # Used in the mutation phase      
 
     def __iter__(self):
-        """ The __iter__ method is defined here as a generator function 
+        ''' The __iter__ method is defined here as a generator function 
         Here are initialized the parameters that will change at each iteration
-        """
+        '''
         n_iter = 0
         self.pop_scores=[]
         self.population=list(ParameterSampler(self.hp_grid, self.init_pop_size)) # First population is random, we turn it into list to fix it
         self.generation=0
         while True:
             for hp in self.population:
-                if n<= self.n_max: 
-                    yield hp 
+                if n_iter<= self.n_max: 
+                    yield hp
                 else:
                     break
                 n_iter += 1
             self.selection()
             self.crossover()
-            self.mutate()
+            self.mutation()
             self.generation += 1
         raise StopIteration
     
     def selection(self):
-        """ This function executes the selection phase
+        ''' This function executes the selection phase
         It will select a subset of the population as the survivors
         to be used in the mutation and crossover processes
         The selection follows the stochastic acceptance algorithm
         Hyperparameter: The selection rate, which determines the exponential rate at which the population 
         will decrease generation after generation.
-        """
+        '''
         new_pop=[]
         max_score=max(self.pop_scores)
         n=len(self.population)
@@ -57,32 +60,32 @@ class GeneticAlgorithm:
         return self 
 
     def crossover(self):
-        """ This fuction executes the crossover phase
+        ''' This fuction executes the crossover phase
         It will create a new population by genetically mixing the past population
         Each new population member will inherit from a fixed number (here 2) of randomly chosen parents
         This mixing allow the convergence to the optimum
         Here we use the uniform crossover methodology
         Hyperparameter: the mixing rate, which determines the proportion of
         changed features from one generation to another
-        """
+        '''
         new_pop=[]
         while len(new_pop)<=len(self.population):
             parents=sample(self.population, 2) # We select two random parents, note that a parent can be selected several times
             crossover_points=sample(hp.keys(), floor(self.mixing_ratio*len(hp))) # this defines the keys of the hyperparameters that will be mixed
             temp={key:parents[0][key] for key in crossover_points}
-            new_pop.append(parrent[0].update({key:parents[1][key] for key in crossover_points}))
-            new_pop.append(parrent[1].update(temp))
+            new_pop.append(parents[0].update({key:parents[1][key] for key in crossover_points}))
+            new_pop.append(parents[1].update(temp))
         self.population=new_pop
         return self
 
-    def mutate(self):
-        """ This function executes the mutation phase
+    def mutation(self):
+        ''' This function executes the mutation phase
         It will randomly change a small subset of the population
         The purpose of mutation is preserving and introducing diversity, allowing to avoid local minimum
         We use a gaussian mutation which covariance matrix is a diagonal matrix defined by the vars vector 
         Hyperparameter: the mutation probability of a population member, it should be very low, 10% max
         and the variance ratio that determines the amplitude of a each mutation
-        """
+        '''
         for i in range(len(self.population)):
             is_mutated=np.random.binomial(1, self.mutation_proba) # We see if we mutate the member
             if is_mutated:
@@ -93,10 +96,11 @@ class GeneticAlgorithm:
         return self    
 
     def update_score(self, score):
-        """ This method allows for an external scope to modify the iterator during the execution of the loop
+        ''' This method allows for an external scope to modify the iterator during the execution of the loop
         It is used to update the score of the tested valued to do the mutation process at the next step
-        """
+        '''
         self.pop_scores.append(score)
+        # investigate why the pop_scores is not updated !!!!
         return self
 
     def __len__(self):

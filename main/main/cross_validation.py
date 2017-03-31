@@ -5,7 +5,7 @@ from sklearn.model_selection import ParameterGrid, ParameterSampler
 from genetic_algorithm import GeneticAlgorithm
 
 class CrossVal():
-    """ Cross Validation
+    ''' Cross Validation
     Search for optimal hyperparameters inside a cross validation process
     -GridSearch: 
         Performs an exhaustive search
@@ -13,8 +13,8 @@ class CrossVal():
         Performs a random search
     -GeneticAlgorithm:
         Performs an optimized random search
-    """
-    def __init__(self, algo, calib_type, hp_grid, cv, scoring, n_iter=None):
+    '''
+    def __init__(self, algo, hp_grid, calib_type, cv, scoring, n_iter=None, **ga_args):
         self.cv=cv
         self.algo=algo
         self.scoring=scoring
@@ -25,10 +25,10 @@ class CrossVal():
         elif calib_type=='RandomSearch':
             self.hp_iterator=ParameterSampler(self.hp_grid, n_iter)
         elif calib_type=='GeneticAlgorithm':
-            self.hp_iterator=GeneticAlgorithm(self.hp_grid, n_iter)
+            self.hp_iterator=GeneticAlgorithm(self.hp_grid, n_iter, **ga_args)
     
     def compute_cv(self, X, Y):
-        """ Cross validation process """
+        ''' Cross validation process '''
         best_score=-np.Inf
         for hp in self.hp_iterator: 
             self.algo.set_hyperparams(**hp)
@@ -40,7 +40,7 @@ class CrossVal():
                 score.append(getattr(self.algo, self.scoring))    
                 self.algo.reset_outputs() # For safety, it is currently needed, please do not change without rethinking the code
             score_mean=np.mean(score)
-            if isinstance(self.hp_iterator, GeneticAlgorithm)=='GenericAlgorithm': self.hp_iterator.update_score(score_mean)
+            if isinstance(self.hp_iterator, GeneticAlgorithm): self.hp_iterator.update_score(score_mean)
             if score_mean>best_score:
                 best_score=score_mean
                 self.best_hp=hp

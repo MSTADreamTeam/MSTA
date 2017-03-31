@@ -5,9 +5,9 @@ import numpy as np
 import os
 
 def dataset_building(n_max=None):
-    """ Build the dataset
+    ''' Build the dataset
     For future datasets please improve this function with arguments to indicate how to build it
-    """
+    '''
     cd=os.getcwd()
     price_data=pd.read_csv(cd+'\\data\\data_fx.csv') 
     price_data.set_index(price_data.columns[0],inplace=True)
@@ -27,24 +27,24 @@ def dataset_building(n_max=None):
 
 
 def lagged(df,lags): 
-    """ Add lags in a dataframe """
+    ''' Add lags in a dataframe '''
     # It would be better to code a version of this function using reference shifting instead of copying data    
     dfs=[pd.DataFrame(index=df.index)]
     for lag in lags: # add lags of y
         temp_df=df.shift(lag)
-        temp_df.columns=temp_df.columns+" L"+str(lag)
+        temp_df.columns=temp_df.columns+' L'+str(lag)
         dfs.append(temp_df)
     res=pd.concat(dfs,axis=1) # Speed optimized
     return res
 
 def to_class(input, threshold=0): 
-    """ Converts a numeric dataframe into a class dataframe, works for a single value too """
+    ''' Converts a numeric dataframe into a class dataframe, works for a single value too '''
     output=(abs(input)>threshold)*np.sign(input) # Syntax using Bool*Float multiplication and DataFrame operations, be careful with the -0.0 though
     return output
         
 
 def core_dataset(algos, algos_used):
-    """ Built a core dataset using predictions from the algos """
+    ''' Built a core dataset using predictions from the algos '''
     list_df=[]
     for key in algos_used:
         list_df.append(algos[key].get_output('predicted_values'))
