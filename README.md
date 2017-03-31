@@ -155,6 +155,8 @@ We can trade using these following ways:
 * IG: online broker providing a trading and date stream API
 * IB: InteractiveBrokers, similar to IG
 
+In order to comunicate with the trading API we might need to code in another language such as C++, or use HTTP protocols.
+
 
 ## References & useful links
 
