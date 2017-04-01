@@ -91,6 +91,9 @@ The algos will be coded as subclass of the generic algo class, with overloaded m
     * OBV: On Balance Volume
     * DIS: Disparity
     * STOD: Stochastic Indicator
+    * CCI: Commodity Chanel Index
+    * EVM: Ease of Movement
+    * Force Index
     * Candle Chart Indicators:
         * Hammer and hanging man
         * Dark Cloud River
