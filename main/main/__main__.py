@@ -8,6 +8,7 @@ from historical_mean import HM
 from linear_regression import LR
 from core_base_algos import CMW, BIS
 from tree import DT
+from random_forest import RF
 
 ## Global Hyperparameters
 # The window size of the rolling window used to define each training set size
@@ -28,7 +29,7 @@ global_hyperparams={'rolling_window_size':rolling_window_size,
                     'threshold':threshold}    
 
 ## Building the dataset
-dataset=data.dataset_building(n_max=2000)
+dataset=data.dataset_building(n_max=1100)
     
 # We select an asset returns time series to predict from the dataset
 asset_label='EURUSD Curncy'
@@ -57,15 +58,16 @@ algos={'HM AR Full window':HM(global_hyperparams),#,hp_grid={'window_size':[10,1
        'LR':LR(global_hyperparams),
        'Lasso':LR(global_hyperparams, regularization='Lasso',hp_grid={'alpha':np.logspace(-4,1,5)}),
        'ElasticNet':LR(global_hyperparams, regularization='ElasticNet',hp_grid={'alpha':np.logspace(-3,1,20),'l1_ratio':np.linspace(0,1,20)}),
-       'Tree':DT(global_hyperparams,hp_grid={'max_features':['sqrt',None]})}
+       'Tree':DT(global_hyperparams,hp_grid={'max_features':['sqrt',None],'criterion':['gini','entropy']}),
+       'RF':RF(global_hyperparams, {'max_features':['sqrt',None],'n_estimators':range(10,200,20)})}
     
 # Then we just allow ourselves to work/calib/fit/train only a subsets of these algos
 algos_used=algos.keys()
 #algos_used=['Lasso']
 #algos_used=['HM AR Full window']
 #algos_used=['HM AR Full window','LR','Lasso']
-#algos_used=['Tree']
-algos_used=['ElasticNet']
+algos_used=['RF']
+#algos_used=['ElasticNet']
 
 for key in algos_used:
     # We let each algo select the relevent data to work on
@@ -82,16 +84,16 @@ for key in algos_used:
                          pred_index,
                          cross_val_type='ts_cv',
                          n_splits=5,
-                         calib_type='GeneticAlgorithm',
+                         calib_type='RandomSearch',
                          scoring_type=None,
-                         n_iter=25,
-                         init_pop_size=10, select_rate=0.5, mixing_ratio=0.5, mutation_proba=0.1, variance_ratio=0.1)
+                         n_iter=5,
+                         init_pop_size=8, select_rate=0.5, mixing_ratio=0.5, mutation_proba=0.1, std_ratio=0.1)
 
         # We build the predictions
         algos[key].predict(X.iloc[test],pred_index)
 
         # for debug
-        print('{} rolling window {}/{}'.format(algos[key].name,i-rolling_window_size-max_lags+1,len(Y.index)-rolling_window_size-max_lags+1), end='\r')
+        print('\r'+'{} rolling window {}/{}'.format(algos[key].name,i-rolling_window_size-max_lags+1,len(Y.index)-rolling_window_size-max_lags+1))
 
     # We compute the outputs
     algos[key].compute_outputs(Y)

@@ -1,43 +1,50 @@
 # This file defines the Generic Algorithm iterator used in cross validation
 import numpy as np
 from sklearn.model_selection import ParameterSampler
-from random import sample
+from random import sample, randint
+from copy import deepcopy
 
 class GeneticAlgorithm:
-    ''' Genetic Algorithm iterator
+    ''' Genetic Algorithm iterable/iterator
     From a ramdomly generated initial population, the algorithm will improve it generation after generation
     The process of improvment is based on the selection, crossover and mutation phases applied at each new generation
     '''
-    def __init__(self, hp_grid, n_max=10, init_pop_size=5, select_rate=0.5, mixing_ratio=0.5, mutation_proba=0.1, variance_ratio=0.1):
+    def __init__(self, hp_grid, n_max=10, init_pop_size=5, select_rate=0.5, mixing_ratio=0.5, mutation_proba=0.1, std_ratio=0.1):
         ''' In the __init__ are defined the fixed parameters '''
         self.n_max=n_max
         self.hp_grid=hp_grid
         self.init_pop_size=init_pop_size
         self.mutation_proba=mutation_proba
         self.select_rate=select_rate
-        self.vars={key:variance_ratio*len(self.hp_grid[key]) for key in self.hp_grid}  # Used in the mutation phase      
+        self.mixing_ratio=mixing_ratio
+        self.stds={key:std_ratio*len(self.hp_grid[key]) for key in self.hp_grid}  # Used in the mutation phase      
 
-    def __iter__(self):
-        ''' The __iter__ method is defined here as a generator function 
-        Here are initialized the parameters that will change at each iteration
-        '''
-        n_iter = 0
+    def iter(self):
+        ''' The __iter__ method that returns an iterator 
+        Since it is called at each new call of the iterable in a for loop structure,
+        it initializes all dynamic elements '''
+        self.n_iter=0
         self.pop_scores=[]
         self.population=list(ParameterSampler(self.hp_grid, self.init_pop_size)) # First population is random, we turn it into list to fix it
+        self.current_pop=self.population.copy()
         self.generation=0
-        while True:
-            for hp in self.population:
-                if n_iter<= self.n_max: 
-                    yield hp
-                else:
-                    break
-                n_iter += 1
+        return self
+
+
+    def next(self):
+        ''' The __next__ method that returns a new element at each iteration '''
+        if self.n_iter>self.n_max: 
+            raise StopIteration
+        if not self.current_pop:
             self.selection()
             self.crossover()
             self.mutation()
             self.generation += 1
-        raise StopIteration
-    
+            self.current_pop=self.population.copy() # The copy makes sure we are copying the list and not the ref
+        self.n_iter += 1
+        return self.current_pop.pop()
+        
+
     def selection(self):
         ''' This function executes the selection phase
         It will select a subset of the population as the survivors
@@ -46,12 +53,12 @@ class GeneticAlgorithm:
         Hyperparameter: The selection rate, which determines the exponential rate at which the population 
         will decrease generation after generation.
         '''
+        n=len(self.population)
         new_pop=[]
         max_score=max(self.pop_scores)
-        n=len(self.population)
-        while len(new_pop)<=floor(n*self.select_rate):
-            rnd_idx=sample(range(len(self.population)), 1) # We draw a random member of the population
-            is_accepted=np.random.binomial(1,self.pop_scores[rnd_idx]/max_score) # Fix his acceptance probabiility as the ratio of his fitness and the max fitness
+        while len(new_pop)<=max(1,int(n*self.select_rate)): # Notice that the selection phase always select at least one element
+            rnd_idx=randint(0,len(self.population)-1) # We draw a random member of the population
+            is_accepted=np.random.binomial(1,self.pop_scores[rnd_idx]/max_score) # Fix his acceptance probability as the ratio of his fitness and the max fitness
             if is_accepted: 
                 new_pop.append(self.population[rnd_idx])  # We draw a bernouilli and see if we add him
                 self.population.pop(rnd_idx) # We make sure not to draw several times the same member
@@ -71,10 +78,12 @@ class GeneticAlgorithm:
         new_pop=[]
         while len(new_pop)<=len(self.population):
             parents=sample(self.population, 2) # We select two random parents, note that a parent can be selected several times
-            crossover_points=sample(hp.keys(), floor(self.mixing_ratio*len(hp))) # this defines the keys of the hyperparameters that will be mixed
+            crossover_points=sample(self.hp_grid.keys(), int(self.mixing_ratio*len(self.hp_grid))) # this defines the keys of the hyperparameters that will be mixed
             temp={key:parents[0][key] for key in crossover_points}
-            new_pop.append(parents[0].update({key:parents[1][key] for key in crossover_points}))
-            new_pop.append(parents[1].update(temp))
+            parents[0].update({key:parents[1][key] for key in crossover_points})
+            new_pop.append(parents[0])
+            parents[1].update(temp)
+            new_pop.append(parents[1])
         self.population=new_pop
         return self
 
@@ -89,9 +98,9 @@ class GeneticAlgorithm:
         for i in range(len(self.population)):
             is_mutated=np.random.binomial(1, self.mutation_proba) # We see if we mutate the member
             if is_mutated:
-                hp_indexes={key:self.hp_grid[key].index(self.population[i][key]) for key in self.hp_grid} # The indexes that describes the member in the grid
-                mutated_idx={key:floor(np.random.normal(hp_indexes[key], self.vars[key])) for key in self.hp_grid} # We generate new mutated indices
-                mutated_fc_idx={key:min(max(mutated_idx[key],0),len(self.hp_grid[key])) for key in self.hp_grid} # We floor/cap these indices to avoid out of bound problems
+                hp_indexes={key:list(self.hp_grid[key]).index(self.population[i][key]) for key in self.hp_grid} # The indexes that describes the member in the grid
+                mutated_idx={key:int(np.random.normal(hp_indexes[key], self.stds[key])) for key in self.hp_grid} # We generate new mutated indices
+                mutated_fc_idx={key:min(max(mutated_idx[key],0),len(self.hp_grid[key])-1) for key in self.hp_grid} # We floor/cap these indices to avoid out of bound problems
                 self.population[i]={key:self.hp_grid[key][mutated_fc_idx[key]] for key in self.hp_grid} # We replace the old member by the mutated one
         return self    
 
@@ -104,5 +113,5 @@ class GeneticAlgorithm:
         return self
 
     def __len__(self):
-        return self.n_iter
+        return self.n_max
         

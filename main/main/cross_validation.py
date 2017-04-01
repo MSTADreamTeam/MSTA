@@ -21,16 +21,47 @@ class CrossVal():
         self.hp_grid=hp_grid
         self.best_hp={}
         if calib_type=='GridSearch':
-            self.hp_iterator=ParameterGrid(self.hp_grid)
+            self.hp_iterable=ParameterGrid(self.hp_grid)
         elif calib_type=='RandomSearch':
-            self.hp_iterator=ParameterSampler(self.hp_grid, n_iter)
+            self.hp_iterable=ParameterSampler(self.hp_grid, n_iter)
         elif calib_type=='GeneticAlgorithm':
-            self.hp_iterator=GeneticAlgorithm(self.hp_grid, n_iter, **ga_args)
+            self.hp_iterable=GeneticAlgorithm(self.hp_grid, n_iter, **ga_args)
     
+    #def compute_cv(self, x, y):
+    #    ''' cross validation process '''
+    #    best_score=-np.inf
+    #    for hp in self.hp_iterable: # here is the problem, this line copy the iterable object, making it immutable
+    #        self.algo.set_hyperparams(**hp)
+    #        score=[]
+    #        for train, test in self.cv.split(x,y):
+    #            self.algo.fit(x.iloc[train], y.iloc[train])
+    #            pred_values=self.algo.predict(x.iloc[test]) # be careful not to stock predicted values in the algo, since it is only temporary internal results
+    #            self.algo.compute_outputs(y.iloc[test], pred_values, self.scoring)
+    #            score.append(getattr(self.algo, self.scoring))    
+    #            self.algo.reset_outputs() # for safety, it is currently needed, please do not change without rethinking the code
+    #        score_mean=np.mean(score)
+    #        if isinstance(self.hp_iterable, geneticalgorithm): self.hp_iterable.update_score(score_mean)
+    #        if score_mean>best_score:
+    #            best_score=score_mean
+    #            self.best_hp=hp
+    #    return self
+
+
     def compute_cv(self, X, Y):
         ''' Cross validation process '''
         best_score=-np.Inf
-        for hp in self.hp_iterator: 
+        if isinstance(self.hp_iterable, GeneticAlgorithm): # This syntax distinction is due to the face that, since iterator are immutable, we had too redefine GeneticAlgorithm as a
+            iterator=self.hp_iterable.iter()
+        else:
+            iterator=self.hp_iterable.__iter__()    
+        while True:
+            try:
+                if isinstance(self.hp_iterable, GeneticAlgorithm):
+                    hp=iterator.next()
+                else:
+                    hp=iterator.__next__()    
+            except StopIteration:
+                break
             self.algo.set_hyperparams(**hp)
             score=[]
             for train, test in self.cv.split(X,Y):
@@ -40,7 +71,7 @@ class CrossVal():
                 score.append(getattr(self.algo, self.scoring))    
                 self.algo.reset_outputs() # For safety, it is currently needed, please do not change without rethinking the code
             score_mean=np.mean(score)
-            if isinstance(self.hp_iterator, GeneticAlgorithm): self.hp_iterator.update_score(score_mean)
+            if isinstance(self.hp_iterable, GeneticAlgorithm): self.hp_iterable.update_score(score_mean)
             if score_mean>best_score:
                 best_score=score_mean
                 self.best_hp=hp
