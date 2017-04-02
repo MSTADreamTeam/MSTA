@@ -50,16 +50,11 @@ class CrossVal():
     def compute_cv(self, X, Y):
         ''' Cross validation process '''
         best_score=-np.Inf
-        if isinstance(self.hp_iterable, GeneticAlgorithm): # This syntax distinction is due to the face that, since iterator are immutable, we had too redefine GeneticAlgorithm as a
-            iterator=self.hp_iterable.iter()
-        else:
-            iterator=self.hp_iterable.__iter__()    
+        # This syntax distinction is due to the face that, since iterator are immutable, we had to cheat a bit    
+        iterator=self.hp_iterable.iter() if isinstance(self.hp_iterable, GeneticAlgorithm) else self.hp_iterable.__iter__()  
         while True:
             try:
-                if isinstance(self.hp_iterable, GeneticAlgorithm):
-                    hp=iterator.next()
-                else:
-                    hp=iterator.__next__()    
+                hp=iterator.next() if isinstance(self.hp_iterable, GeneticAlgorithm) else iterator.__next__()
             except StopIteration:
                 break
             self.algo.set_hyperparams(**hp)

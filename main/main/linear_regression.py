@@ -9,7 +9,7 @@ class LR(gen_algo):
     Hence, we will overload the calib method for this algo later, for speed optimization purposes
     '''
 
-    def __init__(self, global_hyperparams, hp_grid={}, regularization=None, **hyperparams):
+    def __init__(self, global_hyperparams, hp_grid=None, regularization=None, **hyperparams):
         gen_algo.__init__(self, global_hyperparams, hp_grid, **hyperparams) # allow to run the init of the gen_algo class, and define all default arguments
         if regularization is None:
             self.model=LinearRegression()

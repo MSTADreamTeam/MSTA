@@ -9,6 +9,8 @@ from linear_regression import LR
 from core_base_algos import CMW, BIS
 from tree import DT
 from random_forest import RF
+from adaboost import ADAB
+from multi_layer_perceptron import MLP
 
 ## Global Hyperparameters
 # The window size of the rolling window used to define each training set size
@@ -29,14 +31,21 @@ global_hyperparams={'rolling_window_size':rolling_window_size,
                     'threshold':threshold}    
 
 ## Building the dataset
-dataset=data.dataset_building(n_max=1100)
-    
+# Define the main asset ID
+main_id='CUR/EUR'
+start_date='01/01/2010'
+end_date=None # None to go until the last available data
+ 
+# Define the additional data you want to recover
+asset_ids=[main_id]+[]
+dataset=data.dataset_building('quandl', asset_ids, start_date, end_date, n_max=1100)
+
 # We select an asset returns time series to predict from the dataset
-asset_label='EURUSD Curncy'
-Y=dataset[[asset_label]]
-Y.dropna(inplace=True)
+Y=dataset[[dataset.columns[0]]]
+#Y.dropna(inplace=True)
  
 # With lags, used as X
+
 lags=range(1,rolling_window_size+1)
 X=data.lagged(Y,lags=lags) # In X please always include all the lags of Y that you want to use for the HM as first colunms
 max_lags=max(lags)
@@ -56,21 +65,44 @@ algos={'HM AR Full window':HM(global_hyperparams),#,hp_grid={'window_size':[10,1
        'HM GEO Full window':HM(global_hyperparams,mean_type='geometric',hp_grid={'window_size':[1,10,50,100]}),
        'HM AR Short Term':HM(global_hyperparams,window_size=10),
        'LR':LR(global_hyperparams),
-       'Lasso':LR(global_hyperparams, regularization='Lasso',hp_grid={'alpha':np.logspace(-4,1,5)}),
+       'Lasso':LR(global_hyperparams, regularization='Lasso',hp_grid={'alpha':np.logspace(-4,1,10)}),
        'ElasticNet':LR(global_hyperparams, regularization='ElasticNet',hp_grid={'alpha':np.logspace(-3,1,20),'l1_ratio':np.linspace(0,1,20)}),
        'Tree':DT(global_hyperparams,hp_grid={'max_features':['sqrt',None],'criterion':['gini','entropy']}),
-       'RF':RF(global_hyperparams, {'max_features':['sqrt',None],'n_estimators':range(10,200,20)})}
-    
+       'RF':RF(global_hyperparams, hp_grid={'max_features':['sqrt',None],'n_estimators':range(10,200,20)}),
+       'ADAB':ADAB(global_hyperparams, hp_grid={'n_estimators':[1,5,10]}, base_algo=DT(global_hyperparams)),
+       'MLP':MLP(global_hyperparams)}
+
 # Then we just allow ourselves to work/calib/fit/train only a subsets of these algos
 algos_used=algos.keys()
 #algos_used=['Lasso']
 #algos_used=['HM AR Full window']
-#algos_used=['HM AR Full window','LR','Lasso']
-algos_used=['RF']
+algos_used=['HM AR Full window','HM AR Short Term','LR','Lasso','RF']
+#algos_used=['RF']
 #algos_used=['ElasticNet']
+algos_used=['MLP']
+
+# The default cross validation parameters dictionary
+default_cv_params={'cross_val_type':'ts_cv',
+                   'n_splits':5,
+                   'calib_type':'GridSearch'}
+
+# Fix the cross validation parameters of each algorithm you wish to use
+algos_cv_params={key:default_cv_params for key in algos_used}
+#algos_cv_params['Lasso']['calib_type']='RandomSearch'
+#algos_cv_params['Lasso']['n_iter']=5
+#algos_cv_params['RF'].update({'calib_type':'GeneticAlgorithm',
+#                   'scoring_type':none,
+#                   'n_iter':15,
+#                   'init_pop_size':8,
+#                   'select_rate':0.5, 
+#                   'mixing_ratio':0.5,  
+#                   'mutation_proba':0.1, 
+#                   'std_ratio':0.1})
+
 
 for key in algos_used:
-    # We let each algo select the relevent data to work on
+    
+    # First we select the data we want to use with this algo
     algos[key].select_data(X)
 
     for i in range(rolling_window_size+max_lags,len(Y.index)): # Note that i in the numeric index in Y of the predicted value
@@ -79,15 +111,7 @@ for key in algos_used:
         pred_index=Y.index[test] # This is the timestamp of i
 
         # We train all the algos on the testing set, it includes the calibration of hyperparameters and the fitting
-        algos[key].calib(X.iloc[train],
-                         Y.iloc[train],
-                         pred_index,
-                         cross_val_type='ts_cv',
-                         n_splits=5,
-                         calib_type='RandomSearch',
-                         scoring_type=None,
-                         n_iter=5,
-                         init_pop_size=8, select_rate=0.5, mixing_ratio=0.5, mutation_proba=0.1, std_ratio=0.1)
+        algos[key].calib(X.iloc[train], Y.iloc[train], pred_index, **algos_cv_params[key])
 
         # We build the predictions
         algos[key].predict(X.iloc[test],pred_index)
@@ -118,10 +142,10 @@ for i in range(rolling_window_size+1,len(Y_core.index)): # Note that i in the nu
     pred_index=Y_core.index[test] # This is the timestamp of i
 
     # We train all the algos on the testing set, it includes the calibration of hyperparameters and the fitting
-    core.calib(X_core.iloc[train],Y_core.iloc[train],pred_index)
+    core.calib(X_core.iloc[train], Y_core.iloc[train], pred_index, **default_cv_params)
 
     # We build the predictions
-    core.predict(X_core.iloc[test],pred_index)
+    core.predict(X_core.iloc[test], pred_index)
 
     # for debug
     print('Core Algo: {} rolling window {}/{}'.format(core.name,i-rolling_window_size+1,len(Y_core.index)-rolling_window_size+1), end='\r')

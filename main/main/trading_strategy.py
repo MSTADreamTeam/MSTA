@@ -1,5 +1,6 @@
 # This file will define the trading strategy
 from data import to_class
+import zipline as zl
 
 
 class TradingStrat():
@@ -18,11 +19,11 @@ class TradingStrat():
 
     def compute_results(self, Y):
         ''' Compute the results of the Trading Strategy '''
-        # deprecated, made by zipline
+        # zipline
         return self
 
     def plots(self, Y):
-        # deprecated, made by zipline
+        # zipline
         return self
 
     def generate_log(self):

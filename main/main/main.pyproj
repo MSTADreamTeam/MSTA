@@ -25,6 +25,15 @@
     <Compile Include="generic_algo.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="adaboost.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="multi_layer_perceptron.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="__main__zipline.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="random_forest.py">
       <SubType>Code</SubType>
     </Compile>
