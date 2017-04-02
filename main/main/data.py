@@ -35,7 +35,10 @@ def lagged(df,lags):
     dfs=[pd.DataFrame(index=df.index)]
     for lag in lags: # add lags of y
         temp_df=df.shift(lag)
-        temp_df.columns=temp_df.columns+' L'+str(lag)
+        if isinstance(temp_df, pd.DataFrame):
+            temp_df.columns=temp_df.columns+' L'+str(lag)
+        else: # Case where the input is a Serie
+            temp_df.name=temp_df.name+' L'+str(lag) 
         dfs.append(temp_df)
     res=pd.concat(dfs,axis=1) # Speed optimized
     return res

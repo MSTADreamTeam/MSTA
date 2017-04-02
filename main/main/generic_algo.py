@@ -24,7 +24,6 @@ class gen_algo:
         # self.set_hyperparams(**{param_key:param_values[0] for param_key, param_values in hp_grid.items()}) # Initialize the value of the hyperparams attributes with the first value in the hp_grid
         self.best_hp=[] # The best hyperparameters outputed by the cross validation
         self.set_hyperparams(**hyperparams) # Set the fixed hyperparams of the model
-        
     
         ## Outputs
         # For Regression
@@ -68,7 +67,7 @@ class gen_algo:
         This version of the function only works for ML algorithm and it has to be recoded for TA algorithms
         If a pred_index is provided, the prediction will be stored in predicted_values with this index
         '''
-        if self.algo_type=='ML':
+        if self.model is not None:
             predicted_values=self.model.predict(X_test)
             if self.global_hyperparams['output_type']=='C' and self.model._estimator_type!='classifier': # If we use a regression model and we still need to output a class
                 predicted_values=to_class(predicted_values, self.global_hyperparams['threshold'])    
@@ -88,7 +87,7 @@ class gen_algo:
     def fit(self, X_train, Y_train):
         ''' This method is used in the calib, it does a basic fitting,
         only works for ML algos, it does not do anything for TA or BA algos since usually they do not need any fit '''
-        if self.algo_type=='ML':
+        if self.model is not None:
             self.model.fit(X_train,Y_train)
         return self
 
@@ -112,6 +111,14 @@ class gen_algo:
         self.fit(X_train,Y_train) # We always fit the model after the calib
         return self
 
+    def calib_predict(self, X_train, Y_train, X_test, pred_index, **algos_cv_params):
+        ''' Used as the multithread targer function '''
+        self.calib(X_train, Y_train, pred_index, **algos_cv_params)
+        self.predict(X_test, pred_index)
+        # For debug            
+        print('{} prediction: {}'.format(self.name, pred_index[0]))
+        return self
+        
     def compute_outputs(self, Y, pred_val=None,*output_to_compute):
         ''' This function will compute all the desired outputs from the predicted data and the real data
         It relies on the internal methods _compute, please keep the methods and the dictionaries updated
@@ -119,7 +126,7 @@ class gen_algo:
         # Let us notice that defining a dictionary of functions is very non python way of coding, we might want to think of a best way
    
         pred_val=pred_val if pred_val is not None else np.array(self.predicted_values)            
-        Y= Y.iloc[:,0].values if len(Y)==len(pred_val) else Y.loc[self.pred_index].iloc[:,0].values # Turn Y in an array
+        Y= Y.values if len(Y)==len(pred_val) else Y.loc[self.pred_index].values # Turn Y in an np.array
         output_r={'se':self._compute_se,
                   'mse':self._compute_mse,
                   'nmse':self._compute_nmse}
@@ -184,3 +191,13 @@ class gen_algo:
 
     def __str__(self):
         return self.name
+
+
+class AlgoError(Exception):
+    ''' Error raised in case of an error in an algo
+    Especifically when a classifier is called to regress '''
+    def __init__(self, msg):
+        self.msg=msg
+
+    def __str__(self):
+        return self.msg

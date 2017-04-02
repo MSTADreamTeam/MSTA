@@ -28,6 +28,12 @@
     <Compile Include="adaboost.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="golden_dead_cross.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="multithread.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="multi_layer_perceptron.py">
       <SubType>Code</SubType>
     </Compile>

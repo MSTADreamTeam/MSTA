@@ -109,7 +109,6 @@ class GeneticAlgorithm:
         It is used to update the score of the tested valued to do the mutation process at the next step
         '''
         self.pop_scores.append(score)
-        # investigate why the pop_scores is not updated !!!!
         return self
 
     def __len__(self):
