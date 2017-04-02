@@ -190,6 +190,9 @@ https://arxiv.org/pdf/1109.3627.pdf
 * Interesting paper, it covers the use of NN for time series prediction, seems fancy ass complicated tho:
 https://arxiv.org/pdf/1703.01887.pdf
 
+* About ML + TA in finance:
+https://link.springer.com/article/10.1023/A:1018923916424
+
 * Not related to finance but about GA + ESN:
 Genetic algorithm optimized double-reservoir echo state network for multi-regime time series prediction
 
