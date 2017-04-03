@@ -39,7 +39,7 @@ Global hyperparameters:
 *	Y: price data, do we transform it?
 *	Prediction type:
    * A binary output: Up/Dowm
-   * A three clqss output: Up/Down/Neutral given a symetric threshold
+   * A three class output: Up/Down/Neutral given a symetric threshold
    * A regression output
 
 ## Core algorithm
