@@ -44,7 +44,7 @@ def lagged(df,lags):
     return res
 
 def to_class(input, threshold=0): 
-    ''' Converts a numeric dataframe into a class dataframe, works for a single value too '''
+    ''' Converts a numeric dataframe/serie/value into a classified similar type output '''
     output=(abs(input)>threshold)*np.sign(input) # Syntax using Bool*Float multiplication and DataFrame operations, be careful with the -0.0 though
     return output
         

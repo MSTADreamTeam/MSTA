@@ -1,8 +1,8 @@
-from generic_algo import gen_algo
+from base_algo import BaseAlgo
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 
-class LR(gen_algo):
-    '''  This algorithm is the standard OLS Linear Regression, including the regularized versions Lasso, Ridge and Elastic
+class LR(BaseAlgo):
+    '''  This algorithm is the standard OLS Linear Regression, including the regularized versions Lasso, Ridge and Elastic Net
     We use here the skilearn implementation of OLS
         
     For these algos, the CV could be done more efficiently directly using built in tools, because of the specific impact of the regularization parameter on the loss function
@@ -10,7 +10,7 @@ class LR(gen_algo):
     '''
 
     def __init__(self, global_hyperparams, hp_grid=None, regularization=None, **hyperparams):
-        gen_algo.__init__(self, global_hyperparams, hp_grid, **hyperparams) # allow to run the init of the gen_algo class, and define all default arguments
+        BaseAlgo.__init__(self, global_hyperparams, hp_grid, **hyperparams) # allow to run the init of the BaseAlgo class, and define all default arguments
         if regularization is None:
             self.model=LinearRegression()
             self.name='Linear Regression'

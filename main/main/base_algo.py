@@ -4,7 +4,7 @@ from sklearn.model_selection import KFold, TimeSeriesSplit
 from data import to_class
 from cross_validation import CrossVal
 
-class gen_algo:
+class BaseAlgo:
     ''' Predictive Algorithm mother class 
     Here is implemented most of the common code performed by algos, including the fit, predict and calib functions
     For TA algos the predict function is often overloaded

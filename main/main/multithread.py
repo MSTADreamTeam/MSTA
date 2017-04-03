@@ -1,7 +1,6 @@
 # This file is meant to optimize run time ny allowing multithreading of the __main__ code
 # In a future release we might need to investigate the avantage of multiprocessing in top of multithreading
 
-# exemple code imported 
 
 from queue import Queue
 from threading import Thread

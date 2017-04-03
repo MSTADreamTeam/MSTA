@@ -1,13 +1,13 @@
 # Basic core algorithms 
 
 import numpy as np
-from generic_algo import gen_algo
+from base_algo import BaseAlgo
 from data import to_class
 
-class CMW(gen_algo):
+class CMW(BaseAlgo):
     ''' Core Manual Weighting: This algo used as a core algo just manually fixes the weights of the prediction '''
     def __init__(self, global_hyperparams, weights):
-        gen_algo.__init__(self, global_hyperparams)
+        BaseAlgo.__init__(self, global_hyperparams)
         self.algo_type='BA'
         self.weights=weights
         self.name='Core Manual Weighting'
@@ -20,10 +20,10 @@ class CMW(gen_algo):
             self._store_predicted_values(pred_index, predicted_values)
         return predicted_values        
 
-class BIS(gen_algo):
+class BIS(BaseAlgo):
     ''' Best In Sample: This algo used as a core algo just pick the best selection IS to predict OOS '''
     def __init__(self, global_hyperparams, scoring):
-        gen_algo.__init__(self, global_hyperparams)
+        BaseAlgo.__init__(self, global_hyperparams)
         self.algo_type='BA'
         self.scoring=scoring
         self.index_best=None

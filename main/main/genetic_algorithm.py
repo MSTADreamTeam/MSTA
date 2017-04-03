@@ -21,11 +21,11 @@ class GeneticAlgorithm:
 
     def iter(self):
         ''' The __iter__ method that returns an iterator 
-        Since it is called at each new call of the iterable in a for loop structure,
+        Since it is called at each new call of the iterable in a 'for' statement,
         it initializes all dynamic elements '''
         self.n_iter=0
         self.pop_scores=[]
-        self.population=list(ParameterSampler(self.hp_grid, self.init_pop_size)) # First population is random, we turn it into list to fix it
+        self.population=list(ParameterSampler(self.hp_grid, self.init_pop_size)) # First population is random, we turn it into list to copy it
         self.current_pop=self.population.copy()
         self.generation=0
         return self
@@ -48,7 +48,7 @@ class GeneticAlgorithm:
     def selection(self):
         ''' This function executes the selection phase
         It will select a subset of the population as the survivors
-        to be used in the mutation and crossover processes
+        to be used in the mutation and crossover phases
         The selection follows the stochastic acceptance algorithm
         Hyperparameter: The selection rate, which determines the exponential rate at which the population 
         will decrease generation after generation.
@@ -59,8 +59,8 @@ class GeneticAlgorithm:
         while len(new_pop)<=max(1,int(n*self.select_rate)): # Notice that the selection phase always select at least one element
             rnd_idx=randint(0,len(self.population)-1) # We draw a random member of the population
             is_accepted=np.random.binomial(1,self.pop_scores[rnd_idx]/max_score) # Fix his acceptance probability as the ratio of his fitness and the max fitness
-            if is_accepted: 
-                new_pop.append(self.population[rnd_idx])  # We draw a bernouilli and see if we add him
+            if is_accepted:   # We draw a bernouilli and see if we add him
+                new_pop.append(self.population[rnd_idx])
                 self.population.pop(rnd_idx) # We make sure not to draw several times the same member
         self.population=new_pop
         self.pop_scores=[]
@@ -77,7 +77,7 @@ class GeneticAlgorithm:
         '''
         new_pop=[]
         while len(new_pop)<=len(self.population):
-            parents=sample(self.population, 2) # We select two random parents, note that a parent can be selected several times
+            parents=sample(self.population, 2) # We select two random parents, note that a parent can be selected in several couple
             crossover_points=sample(self.hp_grid.keys(), int(self.mixing_ratio*len(self.hp_grid))) # this defines the keys of the hyperparameters that will be mixed
             temp={key:parents[0][key] for key in crossover_points}
             parents[0].update({key:parents[1][key] for key in crossover_points})
@@ -93,20 +93,20 @@ class GeneticAlgorithm:
         The purpose of mutation is preserving and introducing diversity, allowing to avoid local minimum
         We use a gaussian mutation which covariance matrix is a diagonal matrix defined by the vars vector 
         Hyperparameter: the mutation probability of a population member, it should be very low, 10% max
-        and the variance ratio that determines the amplitude of a each mutation
+        and the variance ratio that determines the amplitude of each mutation
         '''
         for i in range(len(self.population)):
             is_mutated=np.random.binomial(1, self.mutation_proba) # We see if we mutate the member
             if is_mutated:
-                hp_indexes={key:list(self.hp_grid[key]).index(self.population[i][key]) for key in self.hp_grid} # The indexes that describes the member in the grid
+                hp_indexes={key:list(self.hp_grid[key]).index(self.population[i][key]) for key in self.hp_grid} # The indexes that describes the member in the hp grid
                 mutated_idx={key:int(np.random.normal(hp_indexes[key], self.stds[key])) for key in self.hp_grid} # We generate new mutated indices
-                mutated_fc_idx={key:min(max(mutated_idx[key],0),len(self.hp_grid[key])-1) for key in self.hp_grid} # We floor/cap these indices to avoid out of bound problems
+                mutated_fc_idx={key:min(max(mutated_idx[key],0),len(self.hp_grid[key])-1) for key in self.hp_grid} # We floor/cap these indices to avoid out of bounds problems
                 self.population[i]={key:self.hp_grid[key][mutated_fc_idx[key]] for key in self.hp_grid} # We replace the old member by the mutated one
         return self    
 
     def update_score(self, score):
         ''' This method allows for an external scope to modify the iterator during the execution of the loop
-        It is used to update the score of the tested valued to do the mutation process at the next step
+        It is used to update the score of the tested valued to do the selection phase for the next generation
         '''
         self.pop_scores.append(score)
         return self

@@ -27,30 +27,12 @@ class CrossVal():
         elif calib_type=='GeneticAlgorithm':
             self.hp_iterable=GeneticAlgorithm(self.hp_grid, n_iter, **ga_args)
     
-    #def compute_cv(self, x, y):
-    #    ''' cross validation process '''
-    #    best_score=-np.inf
-    #    for hp in self.hp_iterable: # here is the problem, this line copy the iterable object, making it immutable
-    #        self.algo.set_hyperparams(**hp)
-    #        score=[]
-    #        for train, test in self.cv.split(x,y):
-    #            self.algo.fit(x.iloc[train], y.iloc[train])
-    #            pred_values=self.algo.predict(x.iloc[test]) # be careful not to stock predicted values in the algo, since it is only temporary internal results
-    #            self.algo.compute_outputs(y.iloc[test], pred_values, self.scoring)
-    #            score.append(getattr(self.algo, self.scoring))    
-    #            self.algo.reset_outputs() # for safety, it is currently needed, please do not change without rethinking the code
-    #        score_mean=np.mean(score)
-    #        if isinstance(self.hp_iterable, geneticalgorithm): self.hp_iterable.update_score(score_mean)
-    #        if score_mean>best_score:
-    #            best_score=score_mean
-    #            self.best_hp=hp
-    #    return self
-
-
     def compute_cv(self, X, Y):
         ''' Cross validation process '''
         best_score=-np.Inf
-        # This syntax distinction is due to the face that, since iterator are immutable, we had to cheat a bit    
+        # This syntax distinction is due to the face that the iterator is copied in a 'for _ in interator' statement, 
+        # hence it makes it impossible to update it for the Generic Algorithm
+        # We could work on rewritting this code, but it seems to be the easiest syntax as of now  
         iterator=self.hp_iterable.iter() if isinstance(self.hp_iterable, GeneticAlgorithm) else self.hp_iterable.__iter__()  
         while True:
             try:
@@ -71,3 +53,24 @@ class CrossVal():
                 best_score=score_mean
                 self.best_hp=hp
         return self
+
+# Old syntax with copied iterator problem
+    #def compute_cv(self, x, y):
+    #    ''' cross validation process '''
+    #    best_score=-np.inf
+    #    for hp in self.hp_iterable: # here is the problem, this line copy the iterable object, making it immutable
+    #        self.algo.set_hyperparams(**hp)
+    #        score=[]
+    #        for train, test in self.cv.split(x,y):
+    #            self.algo.fit(x.iloc[train], y.iloc[train])
+    #            pred_values=self.algo.predict(x.iloc[test]) # be careful not to stock predicted values in the algo, since it is only temporary internal results
+    #            self.algo.compute_outputs(y.iloc[test], pred_values, self.scoring)
+    #            score.append(getattr(self.algo, self.scoring))    
+    #            self.algo.reset_outputs() # for safety, it is currently needed, please do not change without rethinking the code
+    #        score_mean=np.mean(score)
+    #        if isinstance(self.hp_iterable, geneticalgorithm): self.hp_iterable.update_score(score_mean)
+    #        if score_mean>best_score:
+    #            best_score=score_mean
+    #            self.best_hp=hp
+    #    return self
+

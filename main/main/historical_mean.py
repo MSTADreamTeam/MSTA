@@ -1,9 +1,9 @@
-from generic_algo import gen_algo
+from base_algo import BaseAlgo
 from data import to_class
 import pandas as pd
 import numpy as np
 
-class HM(gen_algo):
+class HM(BaseAlgo):
     ''' Historical mean algorithm
     This algorithm will just take the historical mean as a prediction
     It includes arithmetic and geometric mean and allows for a non maximum window size
@@ -11,7 +11,7 @@ class HM(gen_algo):
     '''
 
     def __init__(self, global_hyperparams, hp_grid=None, mean_type='arithmetic', window_size=None):
-        gen_algo.__init__(self, global_hyperparams, hp_grid) # allow to run the init of the gen_algo class, and define all default arguments
+        BaseAlgo.__init__(self, global_hyperparams, hp_grid) # allow to run the init of the BaseAlgo class, and define all default arguments
         self.name='Historical Mean'
         self.algo_type='BA' # By convention
         self.mean_type=mean_type

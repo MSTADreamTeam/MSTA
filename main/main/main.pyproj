@@ -22,7 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="generic_algo.py">
+    <Compile Include="base_algo.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="adaboost.py">
