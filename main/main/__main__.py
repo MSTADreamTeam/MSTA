@@ -5,7 +5,6 @@
 import data
 import numpy as np
 from multithread import MultiThreadCP
-from concurrent.futures import ThreadPoolExecutor, wait
 
 from historical_mean import HM
 from linear_regression import LR
@@ -43,12 +42,12 @@ end_date=None # None to go until the last available data
 
 # Define the additional data you want to recover
 asset_ids=[main_id]+[]
-dataset=data.dataset_building('quandl', asset_ids, start_date, end_date, n_max=1600)
+dataset=data.dataset_building('local', asset_ids, start_date, end_date, n_max=1600)
 
 # We select an asset returns time series to predict from the dataset
 Y=dataset[dataset.columns[0]]
 #Y.dropna(inplace=True)
- 
+
 # X: include all the lags of Y and additional data
 lags=range(1,rolling_window_size+1)
 X=data.lagged(Y,lags=lags) # In X please always include all the lags of Y that you want to use for the HM as first colunms
@@ -80,8 +79,8 @@ algos={'HM AR Full window':HM(global_hyperparams),# hp_grid={'window_size':[10,1
 # Then we just allow ourselves to work only a subset of these algos
 algos_used=algos.keys()
 #algos_used=['Lasso']
-algos_used=['HM AR Full window']
-#algos_used=['HM AR Full window','LR','Lasso','ADAB']
+#algos_used=['HM AR Full window']
+algos_used=['HM AR Full window','LR','Lasso','ADAB']
 #algos_used=['RF']
 #algos_used=['ElasticNet']
 #algos_used=['MLP']
@@ -93,8 +92,8 @@ default_cv_params={'cross_val_type':'ts_cv',
 
 # Fix the cross validation parameters of each algorithm you wish to use
 algos_cv_params={key:dict(default_cv_params) for key in algos_used} # The dict constructor allows for a copy of the default dict
-#algos_cv_params['Lasso']['calib_type']='RandomSearch'
-#algos_cv_params['Lasso']['n_iter']=5
+algos_cv_params['Lasso']['calib_type']='RandomSearch'
+algos_cv_params['Lasso']['n_iter']=5
 #algos_cv_params['MLP'].update({'calib_type':'GeneticAlgorithm',
 #                   'scoring_type':None,
 #                   'n_iter':15,
@@ -104,10 +103,13 @@ algos_cv_params={key:dict(default_cv_params) for key in algos_used} # The dict c
 #                   'mutation_proba':0.1, 
 #                   'std_ratio':0.1})
 
-# Define the multithreading call queue NOT WORKING ATM
-#mt=MultiThreadCP(max_threads=len(algos_used)) # we define one thread by algorithm, it also avoid problems with the GIL when several thread are working on the same algo object
-#mt=ThreadPoolExecutor(max_workers=len(algos_used))
-#tasks=[]
+# Define the multithreading call queue
+# We define one thread by algorithm, it also avoid problems with the GIL
+# when several thread are working on the same algo object 
+multithreading=True
+
+if multithreading:
+    mt=MultiThreadCP(thread_names=algos_used)
 
 for key in algos_used:    
     # First we select the data we want to use with this algo
@@ -120,41 +122,32 @@ for i in range(rolling_window_size+max_lags,len(Y.index)): # Note that i in the 
         test=[i] # I am not sure of the index, we can check, it is inside [] to make sure the slicing produces a dataframe
         pred_index=Y.index[test] # This is the timestamp of i
 
-        # We calibrate the hyperparameters and predict
-        algos[key].calib_predict(X_train=X.iloc[train], 
-                                 Y_train=Y.iloc[train], 
-                                 X_test=X.iloc[test], 
-                                 pred_index=pred_index,
-                                 **algos_cv_params[key])
-        
-        # We add the task to the MultiThreading calib & fit object
-        #mt.add_task(algo=algos[key], 
-        #            X_train=X.iloc[train], 
-        #            Y_train=Y.iloc[train], 
-        #            X_test=X.iloc[test], 
-        #            pred_index=pred_index,
-        #            algo_cv_params=algos_cv_params[key])        
+        if multithreading: # We add the task to the MultiThreading calib & fit object
+            mt.add_task(thread_name=key,
+                        algo=algos[key], 
+                        X_train=X.iloc[train], 
+                        Y_train=Y.iloc[train], 
+                        X_test=X.iloc[test], 
+                        pred_index=pred_index,
+                        algo_cv_params=algos_cv_params[key])        
+        else: # We calibrate the hyperparameters and predict
+            algos[key].calib_predict(X_train=X.iloc[train], 
+                                     Y_train=Y.iloc[train], 
+                                     X_test=X.iloc[test], 
+                                     pred_index=pred_index,
+                                     **algos_cv_params[key])
 
-        #tasks.append(mt.submit(algos[key].calib_predict, 
-        #            X_train=X.iloc[train], 
-        #            Y_train=Y.iloc[train], 
-        #            X_test=X.iloc[test], 
-        #            pred_index=pred_index,
-        #            **algos_cv_params[key]))
-        
-        # for debug
         
 # Make sure that all the threads are done
-print('*** Main thread waiting')
-#mt.threading_queue.join()
-#wait(tasks)
-print('*** Done')
+if multithreading:
+    print('*** Main thread waiting')
+    mt.wait()
+    print('*** Done')
 
 # We compute the output
 for key in algos_used:
     algos[key].compute_outputs(Y)
     
-
 ## Core algorithm
 # Definition of the core algo
 core=HM(global_hyperparams) # Average of the predictions 
@@ -170,19 +163,18 @@ for i in range(rolling_window_size+1,len(Y_core.index)): # Note that i in the nu
     test=[i] # I am not sure of the index, we can check, it is inside [] to make sure the slicing produces a dataframe
     pred_index=Y_core.index[test] # This is the timestamp of i
 
-    # We train all the algos on the testing set, it includes the calibration of hyperparameters and the fitting
-    core.calib(X_core.iloc[train], Y_core.iloc[train], pred_index, **default_cv_params)
-
-    # We build the predictions
-    core.predict(X_core.iloc[test], pred_index)
-
-    # for debug
-    print('Core Algo: {} rolling window {}/{}'.format(core.name,i-rolling_window_size+1,len(Y_core.index)-rolling_window_size+1), end='\r')
+    # We calibrate the hyperparameters and predict
+    core.calib_predict(X_train=X_core.iloc[train], 
+                             Y_train=Y_core.iloc[train], 
+                             X_test=X_core.iloc[test], 
+                             pred_index=pred_index,
+                             **default_cv_params)
 
 # We compute the outputs
 core.compute_outputs(Y_core)
             
 # We check that the core algo is better than all other algos:
+# careful about computing the acuracy only the same window
 scoring='accuracy'
 for algo in algos_used:
     if getattr(algos[key],scoring)>getattr(core,scoring): print('Warning: {} got a better score than the core algo {}'.format(algos[key].name, core.name))
@@ -193,7 +185,5 @@ pass
 
 ## Trading Strategy
 
-
 ## Backtest/Plots/Trading Execution
-
 
