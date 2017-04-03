@@ -238,3 +238,7 @@ https://github.com/ig-python/ig-markets-api-python-library
 * IG API:
 http://labs.ig.com/apiorders
 
+* The technology and economic determinants of cryptocurrency exchange rates: The case of Bitcoin (quotes a lot of very interesting papers) : 
+http://www.sciencedirect.com.iclibezp1.cc.ic.ac.uk/science/article/pii/S0167923616302111
+
+
