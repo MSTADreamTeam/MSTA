@@ -119,7 +119,7 @@ class BaseAlgo:
         print('{} prediction: {}'.format(self.name, pred_index[0]))
         return self
         
-    def compute_outputs(self, Y, pred_val=None,*output_to_compute):
+    def compute_outputs(self, Y, pred_val=None, *output_to_compute):
         ''' This function will compute all the desired outputs from the predicted data and the real data
         It relies on the internal methods _compute, please keep the methods and the dictionaries updated
         '''

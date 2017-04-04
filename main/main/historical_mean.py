@@ -28,18 +28,19 @@ class HM(BaseAlgo):
         elif self.mean_type=='geometric':
         # Let us note that the geometric mean should be optimized using numpy vectorized operations
             predicted_values=1
-            for col in X_test.iloc[:,:w].columns:
-                predicted_values=predicted_values*(1+X_test.iloc[:,col])
+            for col in X_test.iloc[:,:w].columns: # We stop at the column number w
+                predicted_values=predicted_values*(1+X_test[col].values)
             predicted_values=np.power(predicted_values,1/w)-1
             
-        # The output will be different in case of a regression or classification, no need to change the output for a regression
+        # We classify the predictions in case of a classification output
         if self.global_hyperparams['output_type']=='C':
             threshold=self.global_hyperparams['threshold']
             predicted_values=to_class(predicted_values, threshold)
 
         if pred_index is not None:
             self._store_predicted_values(pred_index,predicted_values)
-        return predicted_values # here we have a redundency in the return and the side effect of the method, this is used to simplify coding
+        return predicted_values 
+
 
 ## testing code
 #import matplotlib.pyplot as pyplt

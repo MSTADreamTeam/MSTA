@@ -4,9 +4,5 @@
     <TargetProject>b494e5db-59ac-432f-862b-82dfe96260dc</TargetProject>
     <FriendlyName>main</FriendlyName>
   </ProjectTarget>
-  <Reports>
-    <Report>
-      <Filename>C:\Users\Loic\AppData\Local\Temp\Performance_20170403.vsp</Filename>
-    </Report>
-  </Reports>
+  <Reports />
 </ProfilingTarget>

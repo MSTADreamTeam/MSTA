@@ -30,13 +30,13 @@ class CrossVal():
     def compute_cv(self, X, Y):
         ''' Cross validation process '''
         best_score=-np.Inf
-        # This syntax distinction is due to the face that the iterator is copied in a 'for _ in interator' statement, 
+        # This syntax distinction is due to the face that the iterator is copied in a 'for hp in self.hp_iterable' statement, 
         # hence it makes it impossible to update it for the Generic Algorithm
         # We could work on rewritting this code, but it seems to be the easiest syntax as of now  
-        iterator=self.hp_iterable.iter() if isinstance(self.hp_iterable, GeneticAlgorithm) else self.hp_iterable.__iter__()  
+        iterator=self.hp_iterable.__iter__()
         while True:
             try:
-                hp=iterator.next() if isinstance(self.hp_iterable, GeneticAlgorithm) else iterator.__next__()
+                hp=iterator.__next__()
             except StopIteration:
                 break
             self.algo.set_hyperparams(**hp)
