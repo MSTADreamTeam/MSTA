@@ -42,7 +42,7 @@ end_date=None # None to go until the last available data
 
 # Define the additional data you want to recover
 asset_ids=[main_id]+[]
-dataset=data.dataset_building('quandl', asset_ids, start_date, end_date, n_max=1600)
+dataset=data.dataset_building('quandl', asset_ids, start_date, end_date, n_max=1600) #  please recode the dataset_building functio to make it support local and quandl data
 
 # We select an asset returns time series to predict from the dataset
 Y=dataset[dataset.columns[0]]

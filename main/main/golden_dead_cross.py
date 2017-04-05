@@ -1,4 +1,4 @@
-# This file implemesnts the Technical Analysis Signal of Golden/Dead Cross
+# This file implements the Technical Analysis Signal of Golden/Dead Cross
 
 from base_algo import BaseAlgo, AlgoError
 
@@ -7,7 +7,7 @@ class GDC(BaseAlgo):
     This basic Technical Analysis algo compares the long and short term moving average 
     The hyperparamas are a,b and c and the short and long term window size'''
     
-    def __init__(self, global_hyperparams, hp_grid = None, stw=None, ltw=None, a=None, b=None, c=None):
+    def __init__(self, global_hyperparams, hp_grid=None, stw=None, ltw=None, a=None, b=None, c=None):
         BaseAlgo.__init__(self, global_hyperparams, hp_grid)
         self.algo_type='TA'
         self.a=a
@@ -19,7 +19,13 @@ class GDC(BaseAlgo):
     
 
     def predict(self, X_test, pred_index = None):
-    
+        short_term_ma=X_test.iloc[:,:self.stw].mean(axis=1,skipna=None)
+        long_term_ma=X_test.iloc[:,:self.ltw].mean(axis=1,skipna=None)
+        z=long_term_ma-short_term_ma
+        
+
+
+
         predicted_values=None
 
         if pred_index is not None:
