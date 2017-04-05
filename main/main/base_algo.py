@@ -9,7 +9,7 @@ class BaseAlgo:
     Here is implemented most of the common code performed by algos, including the fit, predict and calib functions
     For TA algos the predict function is often overloaded
     '''
-        
+      
     def __init__(self, global_hyperparams, hp_grid=None, **hyperparams):
         ## General defining arguments
         self.name='Generic Algorithm'
@@ -39,7 +39,6 @@ class BaseAlgo:
         self.accuracy=None
         self.wrong_way_metric=None
 
-
     def set_hyperparams(self, **parameters):
         ''' Hyperparameters setter used in cross validation
         Please DO NOT modify any hyperparameters of the model directly, 
@@ -52,14 +51,14 @@ class BaseAlgo:
             self.model.set_params(**parameters)
         return self
 
-
-
     def select_data(self, X):
         ''' Selecting data function
         This function will output a list of column labels from X to be used in fit, calib and predict
         It allows us to make all the algo work on the same complete dataset and just take slices of it for each algo
+        By default the algo will work with all the lags of the returns, but not with the prices or other data
         '''
-        return X
+        self.selected_data=[' Ret' in col for col in X.columns]
+        return self.selected_data
 
     def predict(self, X_test, pred_index=None):
         ''' Predict function used in main and in the cross validation process
@@ -166,7 +165,6 @@ class BaseAlgo:
             self._compute_good_pred(Y, pred_val)
         self.accuracy=np.mean(self.good_pred)
         return self.accuracy
-       
 
     def reset_outputs(self):
         ''' Used to reset the values of the output during the cross val, please keep updated with new outputs '''        

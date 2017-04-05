@@ -68,7 +68,7 @@ class CrossVal():
     #            score.append(getattr(self.algo, self.scoring))    
     #            self.algo.reset_outputs() # for safety, it is currently needed, please do not change without rethinking the code
     #        score_mean=np.mean(score)
-    #        if isinstance(self.hp_iterable, geneticalgorithm): self.hp_iterable.update_score(score_mean)
+    #        if isinstance(self.hp_iterable, GeneticAlgorithm): self.hp_iterable.update_score(score_mean)
     #        if score_mean>best_score:
     #            best_score=score_mean
     #            self.best_hp=hp

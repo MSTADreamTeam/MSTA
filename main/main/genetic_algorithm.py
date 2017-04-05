@@ -9,9 +9,9 @@ class GeneticAlgorithm:
     From a ramdomly generated initial population, the algorithm will improve it generation after generation
     The process of improvment is based on the selection, crossover and mutation phases applied at each new generation
     '''
-    def __init__(self, hp_grid, n_max=10, init_pop_size=5, select_rate=0.5, mixing_ratio=0.5, mutation_proba=0.1, std_ratio=0.1):
+    def __init__(self, hp_grid, n_iter_max=10, init_pop_size=5, select_rate=0.5, mixing_ratio=0.5, mutation_proba=0.1, std_ratio=0.1):
         ''' In the __init__ are defined the fixed parameters '''
-        self.n_max=n_max
+        self.n_iter_max=n_iter_max
         self.hp_grid=hp_grid
         self.init_pop_size=init_pop_size
         self.mutation_proba=mutation_proba
@@ -32,8 +32,8 @@ class GeneticAlgorithm:
 
 
     def __next__(self):
-        ''' The __next__ method that returns a new element at each iteration '''
-        if self.n_iter>self.n_max: 
+        ''' The __next__ method that returns a new element at each step of the iteration '''
+        if self.n_iter>self.n_iter_max: 
             raise StopIteration
         if not self.current_pop:
             self.selection()
@@ -77,7 +77,7 @@ class GeneticAlgorithm:
         '''
         new_pop=[]
         while len(new_pop)<=len(self.population):
-            parents=sample(self.population, 2) # We select two random parents, note that a parent can be selected in several couple
+            parents=sample(self.population, 2) # We select two random parents, note that a parent can be selected in several couples
             crossover_points=sample(self.hp_grid.keys(), int(self.mixing_ratio*len(self.hp_grid))) # this defines the keys of the hyperparameters that will be mixed
             temp={key:parents[0][key] for key in crossover_points}
             parents[0].update({key:parents[1][key] for key in crossover_points})
@@ -91,7 +91,7 @@ class GeneticAlgorithm:
         ''' This function executes the mutation phase
         It will randomly change a small subset of the population
         The purpose of mutation is preserving and introducing diversity, allowing to avoid local minimum
-        We use a gaussian mutation which covariance matrix is a diagonal matrix defined by the vars vector 
+        We use a gaussian mutation which covariance matrix is a diagonal matrix defined by the stds vector 
         Hyperparameter: the mutation probability of a population member, it should be very low, 10% max
         and the variance ratio that determines the amplitude of each mutation
         '''

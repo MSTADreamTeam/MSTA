@@ -28,11 +28,13 @@ def dataset_building(source='local',asset_ids=None,start_date=None, end_date=Non
     return price_data
 
 
-def compute_returns(df, columns, window):
-    ''' Compute the returns for some
-        preselected columns of the dataset
+def add_returns(df, columns, window=1):
+    ''' Compute the returns for some preselected columns of the dataset
+        Please provide numarical columns indexes
+        And add them to the dataset
     '''
-    df.iloc[:, columns] = (df.iloc[:, columns]/df.iloc[:, columns].shift(window)) - 1
+    for i in columns:
+        df[df.columns[i]+' Ret'] = (df.iloc[:,i]/df.iloc[:,i].shift(window)) - 1
     return df
 
 
