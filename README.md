@@ -1,21 +1,15 @@
 # MSTA: Multi Strategy Trading Algorithm
 
-
 Hybrid trading algorithm using a set of predictive methods to detect trends in market price time series. The set of predictions is then retreated through an ensemble method to provide a final prediction and a trading strategy is built on it.
 
 ## Main guidelines: Why will the algo work?
 
-Let us not forget how hard it is to predict asset returns. Here we will try to gain an edge over the market by cleverly combining different signals coming from different approaches. These approaches will come from two main different types of predictive algorithm: Technical analysis and Machine Learning. It is very important to have a set of classic algo trading strats well calibrated to begin with. Indeed, the ML algos can only provide an edge if we use them with the right calibration approach, but it is a mistake to believe they can learn everything by themselves if they don’t have the right dataset, hence we need to be very careful about how we will treat the results of these algos. A clever approach for example would be to use data science method to tune hyperparameters of classic trading strats. 
-
-Investigate the stock return patterns such as short term mean momentum, medium term mean reverting, and calendar anomalies… (paper from Agron)
+Let us not forget how hard it is to predict asset returns. Here we will try to gain an edge over the market by cleverly combining different signals coming from different approaches. These approaches will come from two main different types of predictive algorithm: Technical analysis and Machine Learning. It is very important to have a set of classic algo trading strats well calibrated to begin with. Indeed, the ML algos can only provide an edge if we use them with the right calibration approach, but it is a mistake to believe they can learn everything by themselves if they don’t have the right dataset, hence we need to be very careful about how we will treat the results of these algos. A clever approach for example would be to use data science methods to tune hyperparameters of classic trading strats. We should also investigate the stock return patterns such as short term mean momentum, medium term mean reverting, and calendar anomalies.
 
 ## Data
 
 Working on the dataset is very important, please do not forget that whichever algo we use, we cannot create new information, only try to describe it.
-
-The data will be recovered from BBG or other source for the first daily dataset. Then we can use the API stream to build live dataset.
-
-We can also use other data from the API, such as Quantopian and Quantdl datasets.
+Currently we are using Quandl as data source. We could later use an API stream to build live dataset.
 
 Here is the type of data we could include, in order of estimated importance:
 * Price data (Close for daily, and Bid/Ask for Intraday)
@@ -35,10 +29,10 @@ Global hyperparameters:
 *	n: numbers of total obs
 *	h: time between two obs, crucial:
     * we will begin with one day and then test with intraday data
-*	X: main dataset, stored once and then called by ref, see Data part
-*	Y: price data, do we transform it?
+*	X: main dataset
+*	Y: return to predict data
 *	Prediction type:
-   * A binary output: Up/Dowm
+   * A binary output: Up/Down
    * A three class output: Up/Down/Neutral given a symetric threshold
    * A regression output
 
@@ -124,7 +118,7 @@ These algos will have to be independently calibrated using one of these methods:
 * Time series expanding/rolling window cross validation:
     * Grid Search: brute forcing a set of hyperparams
     * Random Search: similar with a random subset of all combinaison
-* GA: Genetic Algorithm
+* GA: Genetic Algorithm, see ref for details
 
 ## Possible improvment: News Analysis
 
@@ -145,13 +139,13 @@ Out of our predictions we built a trading strat based on:
 
 The basic idea is to go long/short when we predict a significant move with consistency across the models.
 
-In case of a regression approach: to calculate the consistency we can assume a N(0,1) (or estimate via NP estimation a law) on Pred/std(Pred) and test his significativity at several thresholds. We could then invest only if the prediction is statistically different from zero.
+In case of a regression approach: to calculate the consistency we can assume a N(0,1) (or estimate a distribution via NP estimation) on Pred/std(Pred) and test his significativity at several thresholds. We could then invest only if the prediction is statistically different from zero.
 
 In a case of classification approach: we can use the third prediction class Null to avoid too weak signals. This would be directed by an hyperparameter that can be estimated using an historical vol approach (GARCH?).
 
 We could invest with a size inversely proportional to the variance, to define the exact optimal functional form of the size as a function of the prediction and its variance, we would need to solve an easy optimization problem on the PnL.
 
-To conclude it would be interesing to code it using an set of input risk criterias, and let the algo optimiwe the trading strategy as a result.
+To conclude it would be interesing to code it using an set of input risk criterias, and let the algo optimize the trading strategy as a result.
 
 ## Trading
 
@@ -160,7 +154,6 @@ We can trade using these following ways:
 * Zipline: a python library developped by quantopian for algo trading allowing to backtest and run algorithm, it seems to include part of quantopian data and Quantdl data
 * IG: online broker providing a trading and date stream API
 * IB: InteractiveBrokers, similar to IG
-
 
 In order to comunicate with the trading API we might need to code in another language such as C++, or use HTTP protocols.
 
@@ -214,7 +207,7 @@ https://pdfs.semanticscholar.org/8922/17bb82c11e6e2263178ed20ac23db6279c7a.pdf
 * General article about when the historical mean can be beaten as a predictor and why:
 http://statweb.stanford.edu/~ckirby/brad/other/Article1977.pdf
 
-* Veru interesting article about why there is natural biais in human decision making
+* Very interesting article about why there is natural biais in human decision making
 http://isites.harvard.edu/fs/docs/icb.topic470237.files/articles%20spring%202008/Judgement%20under%20uncertainty%20readings/belief%20in%20the%20law%20of%20small%20numbers.pdf
 
 * Quantopian article about Mean Reverting algorithms, focused on news impact, very interesting:
