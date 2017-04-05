@@ -16,17 +16,24 @@ def dataset_building(source='local',asset_ids=None,start_date=None, end_date=Non
         price_data.index=pd.to_datetime(price_data.index,infer_datetime_format=True) # Speed optimized after testing
         # Make sure the date index is ascending, we avoid to sort because of the complexity
         price_data=price_data.sort_index(axis=0,ascending=True)
-        # Turn prices into returns
-        return_data=price_data/price_data.shift(1)-1
+        
     elif source=='quandl':
         #quandl.ApiConfig.api_key = input('You chose Quandl as a data source, please provide your API key:')
         quandl.ApiConfig.api_key = '8WpG1NY8N1mMn3NT6y9u' # Please use the console input if your key is linked to a premium account
-        return_data=quandl.get(asset_ids, start_date=start_date, end_date=end_date, transformation='rdiff')
+        price_data=quandl.get(asset_ids, start_date=start_date, end_date=end_date, order = 'asc') #Quandl natively gives the results in a desc order
 
     # Cut the dataset to a lower number of obs
     if n_max is not None:
-        return_data = return_data.iloc[-n_max:]     
-    return return_data
+        price_data = price_data.iloc[-(n_max + 1):]     
+    return price_data
+
+
+def compute_returns(df, columns, window):
+    ''' Compute the returns for some
+        preselected columns of the dataset
+    '''
+    df.iloc[:, columns] = (df.iloc[:, columns]/df.iloc[:, columns].shift(window)) - 1
+    return df
 
 
 def lagged(df,lags): 

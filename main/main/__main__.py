@@ -44,9 +44,11 @@ end_date=None # None to go until the last available data
 asset_ids=[main_id]+[]
 dataset=data.dataset_building('quandl', asset_ids, start_date, end_date, n_max=1600) #  please recode the dataset_building functio to make it support local and quandl data
 
+dataset = data.compute_returns(dataset, [0], 1) #creates some NANs as a result of the returns computation
+
 # We select an asset returns time series to predict from the dataset
 Y=dataset[dataset.columns[0]]
-#Y.dropna(inplace=True)
+Y.dropna(inplace=True)
 
 # X: include all the lags of Y and additional data
 lags=range(1,rolling_window_size+1)
