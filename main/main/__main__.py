@@ -38,12 +38,12 @@ global_hyperparams={'rolling_window_size':rolling_window_size,
 ## Building the dataset
 # Define the main asset ID
 main_id='CUR/EUR'
-start_date='01/01/2014'
+start_date='01/01/2013'
 end_date=None # None to go until the last available data
 
 # Define the additional data you want to recover
 asset_ids=[main_id]+[]
-dataset=data.dataset_building('quandl', asset_ids, start_date, end_date, n_max=1600) # please recode the dataset_building functio to make it support local and quandl data
+dataset=data.dataset_building('quandl', asset_ids, start_date, end_date, n_max=2000) # please recode the dataset_building functio to make it support local and quandl data
 
 dataset = data.add_returns(dataset, [0], 1) # creates some NANs as a result of the returns computation
 dataset.dropna(inplace=True)
@@ -77,13 +77,13 @@ algos={'HM AR Full window':HM(global_hyperparams),# hp_grid={'window_size':[10,1
        'RF':RF(global_hyperparams, hp_grid={'max_features':['sqrt',None],'n_estimators':range(10,200,20)}),
        'ADAB':ADAB(global_hyperparams, hp_grid={'n_estimators':[1,5,10]}, base_algo=DT(global_hyperparams)),
        'MLP':MLP(global_hyperparams,hp_grid={'alpha':np.linspace(0,1,10),'hidden_layer_sizes':[(5,5),(10,10,10)]},activation='relu', solver='lbfgs'),
-       'GDC':GDC(global_hyperparams, hp_grid=None, stw=50, ltw=200, a=0.8, b=1, c=1)}
+       'GDC':GDC(global_hyperparams, hp_grid={'stw':[20,50,100],'ltw':[150,200,300],'a':np.linspace(0,1,10),'b':np.linspace(0,1,10)}, c=1)}
 
 # Then we just allow ourselves to work only a subset of these algos
-#algos_used=algos.keys()
+algos_used=algos.keys()
 #algos_used=['Lasso']
 #algos_used=['HM GEO Full window']
-algos_used=['HM AR Full window','LR','Lasso','ADAB']
+#algos_used=['HM AR Full window','LR','Lasso','ADAB']
 #algos_used=['RF']
 #algos_used=['ElasticNet']
 #algos_used=['MLP']
@@ -95,17 +95,19 @@ default_cv_params={'cross_val_type':'ts_cv',
                    'calib_type':'GridSearch'}
 
 # Fix the cross validation parameters of each algorithm you wish to use
-algos_cv_params={key:dict(default_cv_params) for key in algos_used} # The dict constructor allows for a copy of the default dict
-#algos_cv_params['Lasso']['calib_type']='RandomSearch'
-#algos_cv_params['Lasso']['n_iter']=5
-#algos_cv_params['MLP'].update({'calib_type':'GeneticAlgorithm',
-#                   'scoring_type':None,
-#                   'n_iter':7,
-#                   'init_pop_size':4,
-#                   'select_rate':0.5, 
-#                   'mixing_ratio':0.5,  
-#                   'mutation_proba':0.1, 
-#                   'std_ratio':0.1})
+algos_cv_params={key:dict(default_cv_params) for key in algos} # The dict constructor allows for a copy of the default dict
+algos_cv_params['Lasso']['calib_type']='RandomSearch'
+algos_cv_params['Lasso']['n_iter']=5
+algos_cv_params['MLP'].update({'calib_type':'GeneticAlgorithm',
+                   'scoring_type':None,
+                   'n_iter':7,
+                   'init_pop_size':4,
+                   'select_rate':0.5, 
+                   'mixing_ratio':0.5,  
+                   'mutation_proba':0.1, 
+                   'std_ratio':0.1})
+algos_cv_params['ElasticNet']=algos_cv_params['Lasso']
+algos_cv_params['GDC']=algos_cv_params['MLP']
 
 # Define the multithreading call queue
 # We define one thread by algorithm, it avoids problems with the GIL

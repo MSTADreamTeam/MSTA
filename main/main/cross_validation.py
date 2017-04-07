@@ -33,7 +33,7 @@ class CrossVal():
         # This syntax distinction is due to the face that the iterator is copied in a 'for hp in self.hp_iterable' statement, 
         # hence it makes it impossible to update it for the Generic Algorithm
         # We could work on rewritting this code, but it seems to be the easiest syntax as of now  
-        iterator=self.hp_iterable.__iter__()
+        iterator=self.hp_iterable.__iter__() if not isinstance(self.hp_iterable, GeneticAlgorithm) else self.hp_iterable.iter()
         while True:
             try:
                 hp=iterator.__next__()

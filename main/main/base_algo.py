@@ -111,7 +111,7 @@ class BaseAlgo:
         return self
 
     def calib_predict(self, X_train, Y_train, X_test, pred_index, **algos_cv_params):
-        ''' Used as the multithread targer function '''
+        ''' Used as the multithread target function '''
         self.calib(X_train, Y_train, pred_index, **algos_cv_params)
         self.predict(X_test, pred_index)
         # For debug            

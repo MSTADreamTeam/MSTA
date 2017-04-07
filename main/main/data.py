@@ -63,4 +63,16 @@ def core_dataset(algos, algos_used):
     list_df=[]
     for key in algos_used:
         list_df.append(algos[key].get_output('predicted_values'))
-    return pd.concat(list_df, axis=0)    
+    return pd.concat(list_df, axis=0)
+
+def lagdf_to_ts(df):
+    ''' Transform a lagged dataset into a time series of all available prices
+    It is used in TA algorithms, and only works with a dataframe with at least 2 rows as input
+    We might want to try to optimize this function '''
+    res=pd.concat([df.iloc[0,::-1],df.iloc[1:,0]])
+    return res
+
+
+#import matplotlib.pyplot as pyplt
+#pyplt.plot(res.values)
+#pyplt.show()

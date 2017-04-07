@@ -19,7 +19,7 @@ class GeneticAlgorithm:
         self.mixing_ratio=mixing_ratio
         self.stds={key:std_ratio*len(self.hp_grid[key]) for key in self.hp_grid}  # Used in the mutation phase      
 
-    def __iter__(self):
+    def iter(self):
         ''' The __iter__ method that returns an iterator 
         Since it is called at each new call of the iterable in a 'for' statement,
         it initializes all dynamic elements '''
