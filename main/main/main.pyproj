@@ -31,6 +31,9 @@
     <Compile Include="golden_dead_cross.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="echo_state_network.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="multithread.py">
       <SubType>Code</SubType>
     </Compile>
