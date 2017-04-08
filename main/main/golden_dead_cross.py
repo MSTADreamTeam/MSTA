@@ -55,23 +55,23 @@ class GDC(BaseAlgo):
         return predicted_values
 
     
-    def fit(self, X_train, Y_train):
-        ''' We use the fit function to record past peaks and cross
-        This process is similar to the predict function, apart from the fact that it does not predict 
-        ISSUE: for performance questions it would be better not to fit the model, but this could lead to missed signals
-        due to missing history of cross
-        '''
-        X_ts=lagdf_to_ts(X_train) # We first transform the input into a time series
-        short_term_ma=X_ts.rolling(self.stw).mean()
-        long_term_ma=X_ts.rolling(self.ltw).mean()
-        z=long_term_ma-short_term_ma
-        z=z.values[self.ltw-1:] # Speed optimization
-        self.mz=None
-        for t in range(1,len(z)):
-            if z[t]*z[t-1]<0: # We record the cross
-                self.mz=np.abs(z[t]) # In case of a cross we re initialize the value of the peak
-            if self.mz is not None: # If we have a recorded cross we can check for signals
-                self.mz=max(np.abs(z[t]), self.mz) # We update the value of the peak
-        return self
+    #def fit(self, X_train, Y_train):
+    #    ''' We use the fit function to record past peaks and cross
+    #    This process is similar to the predict function, apart from the fact that it does not predict 
+    #    ISSUE: for performance questions it would be better not to fit the model, but this could lead to missed signals
+    #    due to missing history of cross
+    #    '''
+    #    X_ts=lagdf_to_ts(X_train) # We first transform the input into a time series
+    #    short_term_ma=X_ts.rolling(self.stw).mean()
+    #    long_term_ma=X_ts.rolling(self.ltw).mean()
+    #    z=long_term_ma-short_term_ma
+    #    z=z.values[self.ltw-1:] # Speed optimization
+    #    self.mz=None
+    #    for t in range(1,len(z)):
+    #        if z[t]*z[t-1]<0: # We record the cross
+    #            self.mz=np.abs(z[t]) # In case of a cross we re initialize the value of the peak
+    #        if self.mz is not None: # If we have a recorded cross we can check for signals
+    #            self.mz=max(np.abs(z[t]), self.mz) # We update the value of the peak
+    #    return self
     
     

@@ -76,18 +76,18 @@ algos={'HM AR Full window':HM(global_hyperparams),# hp_grid={'window_size':[10,1
        'Tree':DT(global_hyperparams,hp_grid={'max_features':['sqrt',None],'criterion':['gini','entropy']}),
        'RF':RF(global_hyperparams, hp_grid={'max_features':['sqrt',None],'n_estimators':range(10,200,20)}),
        'ADAB':ADAB(global_hyperparams, hp_grid={'n_estimators':[1,5,10]}, base_algo=DT(global_hyperparams)),
-       'MLP':MLP(global_hyperparams,hp_grid={'alpha':np.linspace(0,1,10),'hidden_layer_sizes':[(5,5),(10,10,10)]},activation='relu', solver='lbfgs'),
+       'MLP':MLP(global_hyperparams,hp_grid={'alpha':np.linspace(0.1,1,9),'hidden_layer_sizes':[(5,5),(10,10,10)]},activation='relu', solver='lbfgs'),
        'GDC':GDC(global_hyperparams, hp_grid={'stw':[20,50,100],'ltw':[150,200,300],'a':np.linspace(0,1,10),'b':np.linspace(0,1,10)}, c=1)}
 
 # Then we just allow ourselves to work only a subset of these algos
 algos_used=algos.keys()
 #algos_used=['Lasso']
 #algos_used=['HM GEO Full window']
-#algos_used=['HM AR Full window','LR','Lasso','ADAB']
+algos_used=['HM AR Full window','LR','Lasso','Tree']
 #algos_used=['RF']
 #algos_used=['ElasticNet']
 #algos_used=['MLP']
-algos_used=['GDC']
+#algos_used=['GDC']
 
 # The default cross validation parameters dictionary
 default_cv_params={'cross_val_type':'ts_cv',
@@ -112,7 +112,7 @@ algos_cv_params['GDC']=algos_cv_params['MLP']
 # Define the multithreading call queue
 # We define one thread by algorithm, it avoids problems with the GIL
 # since we will avoid to have several thread working on the same object 
-multithreading=False
+multithreading=True
 
 if multithreading: mt=MultiThreadCP(thread_names=algos_used)
 
@@ -122,32 +122,30 @@ for key in algos_used:
 
 
 for i in range(rolling_window_size+max_lags,len(Y.index)): # Note that i in the numeric index in Y of the predicted value
-    for key in algos_used: # DO not invert the loops to make sure the multithreading is not lost
-        train=range(i-rolling_window_size,i) # should be equal to i-rolling_window_size:i-1
-        test=[i] # I am not sure of the index, we can check, it is inside [] to make sure the slicing produces a dataframe
-        pred_index=Y.index[test] # This is the timestamp of i
-
+    train=range(i-rolling_window_size,i) # should be equal to i-rolling_window_size:i-1
+    test=[i] # I am not sure of the index, we can check, it is inside [] to make sure the slicing produces a dataframe        pred_index=Y.index[test] # This is the timestamp of i
+    pred_index=Y.index[test] # This is the timestamp of i
+    X_train=X.iloc[train, algos[key].selected_data]
+    Y_train=Y.iloc[train]
+    X_test=X.iloc[test, algos[key].selected_data]
+    for key in algos_used:
         if multithreading: # We add the task to the MultiThreading calib & fit object
-            mt.add_task(thread_name=key,
+            mt.add_task(thread_name=key, 
                         algo=algos[key], 
-                        X_train=X.iloc[train,algos[key].selected_data], 
-                        Y_train=Y.iloc[train], 
-                        X_test=X.iloc[test,algos[key].selected_data], 
+                        X_train=X_train,
+                        Y_train=Y_train, 
+                        X_test=X_test,
                         pred_index=pred_index,
                         algo_cv_params=algos_cv_params[key])        
         else: # We calibrate the hyperparameters and predict
-            algos[key].calib_predict(X_train=X.iloc[train,algos[key].selected_data], 
-                                     Y_train=Y.iloc[train], 
-                                     X_test=X.iloc[test,algos[key].selected_data], 
-                                     pred_index=pred_index,
-                                     **algos_cv_params[key])
+            algos[key].calib_predict(X_train, Y_train, X_test, pred_index, **algos_cv_params[key])
 
         
 # Make sure that all the threads are done
 if multithreading:
-    print('*** Main thread waiting')
+    print('*** Main thread waiting ***')
     mt.wait()
-    print('*** Done')
+    print('*** Done ***')
 
 # We compute the output
 for key in algos_used:
@@ -169,11 +167,7 @@ for i in range(rolling_window_size+1,len(Y_core.index)): # Note that i in the nu
     pred_index=Y_core.index[test] # This is the timestamp of i
 
     # We calibrate the hyperparameters and predict
-    core.calib_predict(X_train=X_core.iloc[train], 
-                             Y_train=Y_core.iloc[train], 
-                             X_test=X_core.iloc[test], 
-                             pred_index=pred_index,
-                             **default_cv_params)
+    core.calib_predict(X_core.iloc[train], Y_core.iloc[train], X_core.iloc[test], pred_index, **default_cv_params)
 
 # We compute the outputs
 core.compute_outputs(Y_core)

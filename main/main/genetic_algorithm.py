@@ -30,7 +30,6 @@ class GeneticAlgorithm:
         self.generation=0
         return self
 
-
     def __next__(self):
         ''' The __next__ method that returns a new element at each step of the iteration '''
         if self.n_iter>self.n_iter_max: 
@@ -44,7 +43,6 @@ class GeneticAlgorithm:
         self.n_iter += 1
         return self.current_pop.pop()
         
-
     def selection(self):
         ''' This function executes the selection phase
         It will select a subset of the population as the survivors

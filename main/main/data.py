@@ -28,12 +28,12 @@ def dataset_building(source='local',asset_ids=None,start_date=None, end_date=Non
     return price_data
 
 
-def add_returns(df, columns, window=1):
+def add_returns(df, col_index, window=1):
     ''' Compute the returns for some preselected columns of the dataset
         Please provide numarical columns indexes
         And add them to the dataset
     '''
-    for i in columns:
+    for i in col_index:
         df[df.columns[i]+' Ret'] = (df.iloc[:,i]/df.iloc[:,i].shift(window)) - 1
     return df
 
@@ -68,8 +68,8 @@ def core_dataset(algos, algos_used):
 def lagdf_to_ts(df):
     ''' Transform a lagged dataset into a time series of all available prices
     It is used in TA algorithms, and only works with a dataframe with at least 2 rows as input
-    We might want to try to optimize this function '''
-    res=pd.concat([df.iloc[0,::-1],df.iloc[1:,0]])
+    '''
+    res=df.iloc[0,::-1].append(df.iloc[1:,0])
     return res
 
 

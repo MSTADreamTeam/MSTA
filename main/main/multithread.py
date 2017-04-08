@@ -1,6 +1,6 @@
 # This file is meant to optimize run time ny allowing multithreading of the __main__ code
 # In a future release we might need to investigate the avantage of multiprocessing in top of multithreading
-
+# A good improvment would be to use the Parralel class defined in sklearn which supports multiprocessing and multithreading
 
 from queue import Queue
 from threading import Thread
@@ -14,7 +14,7 @@ class MultiThreadCP():
         self.threading_queues={thread_name:Queue() for thread_name in thread_names}
         for thread_name in thread_names:
             t = Thread(name=thread_name, target=self.worker, args=(thread_name, ))
-            t.daemon=True # Check online to understand exaclty the deamon property
+            t.daemon=True # Allow for the main thread to kill the local thread
             t.start()
 
     def add_task(self, **task):
