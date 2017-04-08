@@ -204,7 +204,7 @@ https://arxiv.org/pdf/1406.2661v1.pdf
 * Presentation of ESN:
 https://pdfs.semanticscholar.org/8922/17bb82c11e6e2263178ed20ac23db6279c7a.pdf
 
-* On ESN:
+* On practical use of ESN, very complete:
 http://minds.jacobs-university.de/sites/default/files/uploads/papers/PracticalESN.pdf
 
 * General article about when the historical mean can be beaten as a predictor and why:
