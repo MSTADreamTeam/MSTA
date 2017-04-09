@@ -27,7 +27,6 @@ class ESN(BaseAlgo):
         self.regularization=regularization # The regularization used in the loss function
         self.alpha=alpha # The alpha parameter of the regularization
         self.l1_ratio=l1_ratio # the l1 ratio parameter of an ElasticNet regularization
-        self.state 
 
     def init_rnn_cell(self, input_size):
         ''' Initialize the RNN cell, the reservoir '''

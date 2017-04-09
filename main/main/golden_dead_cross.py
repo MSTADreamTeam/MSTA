@@ -10,8 +10,7 @@ class GDC(BaseAlgo):
     ''' Golden/Dead Cross Technical Analysis signal
     This basic Technical Analysis algo compares the long and short term moving average 
     The hyperparamas are a,b and c and the short and long term window size'''
-    
-    def __init__(self, global_hyperparams, hp_grid=None, stw=None, ltw=None, a=None, b=None, c=None):
+    def __init__(self, global_hyperparams, hp_grid=None, stw=50, ltw=200, a=None, b=None, c=None):
         BaseAlgo.__init__(self, global_hyperparams, hp_grid)
         self.algo_type='TA'
         self.name='Golden Dead Cross'
@@ -22,11 +21,6 @@ class GDC(BaseAlgo):
         self.ltw=ltw
         self.mz=None # absolute value of the last peak
         if global_hyperparams['output_type']=='R': raise AlgoError('You cannot call GDC as a regressor')
-    
-    def select_data(self, X):
-        ''' Here the function select data will select the prices '''
-        self.selected_data=[' Ret' not in col for col in X.columns]
-        return self.selected_data
     
     def predict(self, X_test, pred_index = None):
         ''' In order to transform this strategy into a clasification algorithm,

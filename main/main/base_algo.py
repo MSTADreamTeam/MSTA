@@ -55,9 +55,12 @@ class BaseAlgo:
         ''' Selecting data function
         This function will output a list of column labels from X to be used in fit, calib and predict
         It allows us to make all the algo work on the same complete dataset and just take slices of it for each algo
-        By default the algo will work with all the lags of the returns, but not with the prices or other data
+        By default the algo will work with all the lags of the returns for ML, and with prices for TA
         '''
-        self.selected_data=[' Ret' in col for col in X.columns]
+        if self.algo_type=='ML':
+            self.selected_data=[' Ret' in col for col in X.columns]
+        else:
+            self.selected_data=[' Ret' not in col for col in X.columns]
         return self.selected_data
 
     def predict(self, X_test, pred_index=None):

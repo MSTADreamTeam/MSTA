@@ -13,7 +13,7 @@ class HM(BaseAlgo):
     def __init__(self, global_hyperparams, hp_grid=None, mean_type='arithmetic', window_size=None):
         BaseAlgo.__init__(self, global_hyperparams, hp_grid) # allow to run the init of the BaseAlgo class, and define all default arguments
         self.name='Historical Mean'
-        self.algo_type='BA' # By convention
+        self.algo_type='ML' # By convention
         self.mean_type=mean_type
         if window_size is not None:  # It is possible to define a window size different from the global rolling window size, but it has to be less or equal
             self.window_size=window_size

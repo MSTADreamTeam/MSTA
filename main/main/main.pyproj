@@ -34,6 +34,12 @@
     <Compile Include="echo_state_network.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ma_enveloppe.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="relative_strength_index.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="multithread.py">
       <SubType>Code</SubType>
     </Compile>

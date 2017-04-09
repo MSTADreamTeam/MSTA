@@ -16,7 +16,8 @@ def dataset_building(source='local',asset_ids=None,start_date=None, end_date=Non
         price_data.index=pd.to_datetime(price_data.index,infer_datetime_format=True) # Speed optimized after testing
         # Make sure the date index is ascending, we avoid to sort because of the complexity
         price_data=price_data.sort_index(axis=0,ascending=True)
-        
+        price_data=price_data.iloc[:,[0]] # tempoorary fix    
+    
     elif source=='quandl':
         #quandl.ApiConfig.api_key = input('You chose Quandl as a data source, please provide your API key:')
         quandl.ApiConfig.api_key = '8WpG1NY8N1mMn3NT6y9u' # Please use the console input if your key is linked to a premium account

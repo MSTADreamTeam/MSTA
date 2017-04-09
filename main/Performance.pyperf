@@ -6,16 +6,10 @@
   </ProjectTarget>
   <Reports>
     <Report>
-      <Filename>C:\Users\Loic\AppData\Local\Temp\Performance_20170407.vsp</Filename>
+      <Filename>C:\Users\Loic\AppData\Local\Temp\Performance_20170409.vsp</Filename>
     </Report>
     <Report>
-      <Filename>C:\Users\Loic\AppData\Local\Temp\Performance_20170407(1).vsp</Filename>
-    </Report>
-    <Report>
-      <Filename>C:\Users\Loic\AppData\Local\Temp\Performance_20170407(2).vsp</Filename>
-    </Report>
-    <Report>
-      <Filename>C:\Users\Loic\AppData\Local\Temp\Performance_20170407(3).vsp</Filename>
+      <Filename>C:\Users\Loic\AppData\Local\Temp\Performance_20170409(1).vsp</Filename>
     </Report>
   </Reports>
 </ProfilingTarget>
