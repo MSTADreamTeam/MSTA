@@ -122,7 +122,7 @@ These algos will have to be independently calibrated using one of these methods:
 
 ## Possible improvment: News Analysis
 
-If implementing news analysis by itself as one of the algo is possible, news analysis can also be used in the trading strategy to avoid taking position close to big news event. As a result, including news into the model can have a range of impacts that could sensibly change the final performance of the stategy. Including a robust News Analysis tool is a key to generate consistent Alpha.
+If implementing news analysis by itself as one of the algo is possible, news analysis can also be used in the trading strategy to avoid taking position close to big news event. As a result, including news into the model can have a range of impacts that could sensibly change the final performance of the stategy. Including a robust News Analysis tool is a key to generate consistent Alpha. There is two main ways to approach this problem, either use NLP to generate personalized data or directly use an already made database.
 
 Please check these databases:
 * Accern Alphaone News Sentiment
