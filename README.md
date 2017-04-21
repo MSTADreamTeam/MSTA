@@ -207,6 +207,11 @@ https://pdfs.semanticscholar.org/8922/17bb82c11e6e2263178ed20ac23db6279c7a.pdf
 * On practical use of ESN, very complete:
 http://minds.jacobs-university.de/sites/default/files/uploads/papers/PracticalESN.pdf
 
+* On a complete way to optimize ESN hyperparams using Fisher Information Maximization, NP estimation and GA:
+https://arxiv.org/pdf/1603.03685.pdf
+
+
+
 * General article about when the historical mean can be beaten as a predictor and why:
 http://statweb.stanford.edu/~ckirby/brad/other/Article1977.pdf
 
