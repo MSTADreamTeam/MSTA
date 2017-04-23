@@ -39,9 +39,11 @@ class CrossVal():
                 hp=iterator.__next__()
             except StopIteration:
                 break
+            # Should we fix the random seed here?
             self.algo.set_hyperparams(**hp)
             score=[]
             for train, test in self.cv.split(X,Y):
+                # need to optimize the data getters here!!!!!!
                 self.algo.fit(X.iloc[train], Y.iloc[train])
                 pred_values=self.algo.predict(X.iloc[test]) # Be careful not to stock predicted values in the algo, since it is only temporary internal results
                 self.algo.compute_outputs(Y.iloc[test], pred_values, self.scoring)

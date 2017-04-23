@@ -37,6 +37,7 @@ class BaseAlgo:
         # For Classification
         self.good_pred=None
         self.accuracy=None
+        self.categorical_crossentropy=None
         self.wrong_way_metric=None
 
     def set_hyperparams(self, **parameters):
@@ -181,6 +182,7 @@ class BaseAlgo:
         # For Classification
         self.good_pred=None
         self.accuracy=None
+        self.categorical_crossentropy=None
         self.wrong_way_metric=None
 
     def get_output(self, key):

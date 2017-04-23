@@ -82,7 +82,7 @@ algos={'HM AR Full window':HM(global_hyperparams),# hp_grid={'window_size':[10,1
 
 # Then we just allow ourselves to work only a subset of these algos
 algos_used=algos.keys()
-algos_used=['MAE']
+algos_used=['HM AR Full window','MAE','GDC']
 
 # The default cross validation parameters dictionary
 default_cv_params={'cross_val_type':'ts_cv',
@@ -109,7 +109,7 @@ algos_cv_params['MAE']=algos_cv_params['MLP']
 # Define the multithreading call queue
 # We define one thread by algorithm, it avoids problems with the GIL
 # since we will avoid to have several thread working on the same object 
-multithreading=False
+multithreading=True
 
 if multithreading: mt=MultiThreadCP(thread_names=algos_used)
 
@@ -126,7 +126,7 @@ for i in range(rolling_window_size+max_lags,len(Y.index)): # Note that i in the 
     Y_train=Y.iloc[train]
     X_test=X.iloc[test, algos[key].selected_data]
     for key in algos_used:
-        if multithreading: # We add the task to the MultiThreading calib & fit object
+        if multithreading: # We add the task to the MultiThreading calib & predict object
             mt.add_task(thread_name=key, 
                         algo=algos[key], 
                         X_train=X_train,
