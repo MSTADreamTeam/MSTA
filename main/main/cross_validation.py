@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from genetic_algorithm import GeneticAlgorithm
 
-class CrossVal():
+class CrossVal:
     ''' Cross Validation
     Search for optimal hyperparameters inside a cross validation process
     -GridSearch: 
@@ -34,6 +34,7 @@ class CrossVal():
         # hence it makes it impossible to update it for the Generic Algorithm
         # We could work on rewritting this code, but it seems to be the easiest syntax as of now  
         iterator=self.hp_iterable.__iter__() if not isinstance(self.hp_iterable, GeneticAlgorithm) else self.hp_iterable.iter()
+        train_test_sets=[(X.iloc[train], Y.iloc[train], X.iloc[test], Y.iloc[test]) for train, test in self.cv.split(X,Y)] # This line minimize the cost of getters
         while True:
             try:
                 hp=iterator.__next__()
@@ -42,11 +43,10 @@ class CrossVal():
             # Should we fix the random seed here?
             self.algo.set_hyperparams(**hp)
             score=[]
-            for train, test in self.cv.split(X,Y):
-                # need to optimize the data getters here!!!!!!
-                self.algo.fit(X.iloc[train], Y.iloc[train])
-                pred_values=self.algo.predict(X.iloc[test]) # Be careful not to stock predicted values in the algo, since it is only temporary internal results
-                self.algo.compute_outputs(Y.iloc[test], pred_values, self.scoring)
+            for X_train, Y_train, X_test, Y_test in train_test_sets:
+                self.algo.fit(X_train, Y_train)
+                pred_values=self.algo.predict(X_test) # Be careful not to stock predicted values in the algo, since it is only temporary internal results
+                self.algo.compute_outputs(Y_test, pred_values, self.scoring)
                 score.append(getattr(self.algo, self.scoring))    
                 self.algo.reset_outputs() # For safety, it is currently needed, please do not change without rethinking the code
             score_mean=np.mean(score)

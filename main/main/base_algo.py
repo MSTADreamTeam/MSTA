@@ -64,14 +64,14 @@ class BaseAlgo:
             self.selected_data=[' Ret' not in col for col in X.columns]
         return self.selected_data
 
-    def predict(self, X_test, pred_index=None):
+    def predict(self, X_test, pred_index=None, *kwargs):
         ''' Predict function used in main and in the cross validation process
         It can accept as an X_test input either an array or a dataframe and gives a corresponding output
         This version of the function only works for ML algorithm and it has to be recoded for TA algorithms
         If a pred_index is provided, the prediction will be stored in predicted_values with this index
         '''
         if self.model is not None:
-            predicted_values=self.model.predict(X_test)
+            predicted_values=self.model.predict(X_test, *kwargs)
             if self.global_hyperparams['output_type']=='C' and self.model._estimator_type!='classifier': # If we use a regression model and we still need to output a class
                 predicted_values=to_class(predicted_values, self.global_hyperparams['threshold'])    
         else:

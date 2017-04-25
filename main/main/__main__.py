@@ -82,7 +82,7 @@ algos={'HM AR Full window':HM(global_hyperparams),# hp_grid={'window_size':[10,1
 
 # Then we just allow ourselves to work only a subset of these algos
 algos_used=algos.keys()
-algos_used=['HM AR Full window','MAE','GDC']
+algos_used=['MAE','GDC']
 
 # The default cross validation parameters dictionary
 default_cv_params={'cross_val_type':'ts_cv',
@@ -109,7 +109,7 @@ algos_cv_params['MAE']=algos_cv_params['MLP']
 # Define the multithreading call queue
 # We define one thread by algorithm, it avoids problems with the GIL
 # since we will avoid to have several thread working on the same object 
-multithreading=True
+multithreading=False
 
 if multithreading: mt=MultiThreadCP(thread_names=algos_used)
 

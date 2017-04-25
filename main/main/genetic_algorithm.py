@@ -8,7 +8,7 @@ class GeneticAlgorithm:
     ''' Genetic Algorithm iterable/iterator
     From a ramdomly generated initial population, the algorithm will improve it generation after generation
     The process of improvment is based on the selection, crossover and mutation phases applied at each new generation
-    !!! please read fro additional ideas: !!!
+    !!! please read for additional ideas: !!!
     James S. Bergstra, R´emi Bardenet, Yoshua Bengio, and Bal´azs K´egl. Algorithms for hyper-parameter
     optimization. In J. Shawe-Taylor, R.S. Zemel, P. Bartlett, F.C.N. Pereira, and K.Q. Weinberger, editors,
     Advances in Neural Information Processing Systems 23 (NIPS 2010), pages 2546–2554. 2011.

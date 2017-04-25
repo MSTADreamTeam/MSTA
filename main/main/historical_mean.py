@@ -1,7 +1,8 @@
-from base_algo import BaseAlgo
-from data import to_class
 import pandas as pd
 import numpy as np
+
+from base_algo import BaseAlgo
+from data import to_class
 
 class HM(BaseAlgo):
     ''' Historical mean algorithm
@@ -20,7 +21,6 @@ class HM(BaseAlgo):
         else:
             self.window_size=self.global_hyperparams['rolling_window_size']
             
-    
     def predict(self, X_test, pred_index=None):
         w = self.window_size
         if self.mean_type=='arithmetic':

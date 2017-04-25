@@ -77,7 +77,7 @@
     <Compile Include="core_base_algos.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="test_tf.py">
+    <Compile Include="test_keras.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

@@ -1,4 +1,4 @@
-# This file defines the ESN
+# This file defines the ESN using Keras library with Tensorflow backend
 
 from base_algo import BaseAlgo
 
@@ -7,6 +7,7 @@ from keras.layers.core import Dense
 from keras.layers.recurrent import Recurrent, SimpleRNN
 from keras.initializers import RandomUniform, RandomNormal
 from keras import backend as K
+from tensorflow.python.framework.ops import convert_to_tensor
 
 class ESN(BaseAlgo):
     ''' This class defines the Echo State Network
@@ -33,15 +34,15 @@ class ESN(BaseAlgo):
         self.alpha=alpha # The alpha parameter of the regularization
         self.l1_ratio=l1_ratio # the l1 ratio parameter of an ElasticNet regularization
 
-    def init_net(self, input_size):
+    def init_net(self, input_size, batch_size):
         ''' Initialize the network 
         Reinitializing it erase the memory of the network '''
         self.model=Sequential()
         #self.model.add(Dense(input_size, activation=self.activation, input_shape=()))
-        self.model.add(ESNCell(input_size, self.n_res, self.spectral_radius, self.sparcity_ratio, 
+        self.model.add(ESNCell(input_size, batch_size, self.n_res, self.spectral_radius, self.sparcity_ratio, 
                                self.leaking_rate, self.activation))
         self.model.add(Dense(1)) # Activate the output layer non linearly?
-        self.model.compile(optimizer='', loss='', metrics=['']) # need to complete
+        self.model.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy']) # Change the learning rate given the fact that we have a lin reg?
         return self
 
     def select_data(self, X):
@@ -49,8 +50,12 @@ class ESN(BaseAlgo):
         self.selected_data=[True for col in X.columns]
         return self.selected_data
 
+    def predict(self, X_test, pred_index = None):
+         # check the shape of X woth the batch this tensor
+        return super().predict(X_test, pred_index, batch_size=len(X_test))
+
     def fit(self, X_train, Y_train, verbose=0):
-        self.init_net(len(X_train))
+        self.init_net(X_train.shape[1],X_train.shape[0])
         self.model.fit(X_train, Y_train, verbose=verbose, validation_split=0.0, shuffle=False) # Avoid shuffling because of the statefulness of the network
         return self
 
@@ -63,7 +68,7 @@ class ESNCell(Recurrent):
     ''' Subclass of Keras Recurrent Neural Net cell, used to model the reservoir of the ESN
     Code inspired from https://github.com/m-colombo/Tensorflow-EchoStateNetwork/blob/master/esn_cell.py 
     and adapted to Keras syntax '''
-    def __init__(self, input_size, n_res, norm_scale, sparcity_ratio, leaking_rate, activation, 
+    def __init__(self, input_size, batch_size, n_res, norm_scale, sparcity_ratio, leaking_rate, activation,  
                  w_input_init=RandomNormal(),
                  w_res_init=RandomNormal(), # Try to use different distributions, such as uniform 
                  b_init=RandomNormal()): 
