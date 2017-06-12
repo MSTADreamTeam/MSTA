@@ -17,11 +17,12 @@ from multi_layer_perceptron import MLP
 from golden_dead_cross import GDC
 from ma_enveloppe import MAE
 from relative_strength_index import RSI
+from echo_state_network import ESN
 
 ## Global Hyperparameters
 # The window size of the rolling window used to define each training set size
 # The models will never see more than this number of points at once
-rolling_window_size=500
+rolling_window_size=1000
     
 # Output type : C for Classification, R for Regression
 output_type='C'
@@ -39,12 +40,12 @@ global_hyperparams={'rolling_window_size':rolling_window_size,
 ## Building the dataset
 # Define the main asset ID
 main_id='CUR/EUR'
-start_date='01/01/2013'
+start_date='01/01/2000'
 end_date=None # None to go until the last available data
 
 # Define the additional data you want to recover
 asset_ids=[main_id]+[]
-dataset=data.dataset_building('local', asset_ids, start_date, end_date, n_max=2000) # please recode the dataset_building functio to make it support local and quandl data
+dataset=data.dataset_building('local', asset_ids, start_date, end_date, n_max=3000, verbose=1) # please recode the dataset_building functio to make it support local and quandl data
 dataset = data.add_returns(dataset, [0]) # creates some NANs as a result of the returns computation
 dataset.dropna(inplace=True)
 
@@ -78,11 +79,13 @@ algos={'HM AR Full window':HM(global_hyperparams),# hp_grid={'window_size':[10,1
        'ADAB':ADAB(global_hyperparams, hp_grid={'n_estimators':[1,5,10]}, base_algo=DT(global_hyperparams)),
        'MLP':MLP(global_hyperparams,hp_grid={'alpha':np.linspace(0.1,1,9),'hidden_layer_sizes':[(10,),(100,),(200,)]},activation='relu', solver='lbfgs'),
        'GDC':GDC(global_hyperparams, hp_grid={'stw':[20,50,100],'ltw':[150,200,300],'a':np.linspace(0,1,10),'b':np.linspace(0,1,10)}, c=1),
-       'MAE':MAE(global_hyperparams, hp_grid={'w':[10,20,100,200,500],'p1':np.linspace(0.001,0.01,10)})}
+       'MAE':MAE(global_hyperparams, hp_grid={'w':[10,20,100,200,500],'p1':np.linspace(0.001,0.01,10)}),
+       'ESN':ESN(global_hyperparams, hp_grid=None, n_res=1000, sparcity_ratio=0.01, spectral_radius=.9, activation='tanh', leaking_rate=.5)}
 
 # Then we just allow ourselves to work only a subset of these algos
 algos_used=algos.keys()
 algos_used=['MAE','GDC']
+algos_used=['ESN']
 
 # The default cross validation parameters dictionary
 default_cv_params={'cross_val_type':'ts_cv',
@@ -104,6 +107,14 @@ algos_cv_params['MLP'].update({'calib_type':'GeneticAlgorithm',
 algos_cv_params['ElasticNet']=algos_cv_params['Lasso']
 algos_cv_params['GDC']=algos_cv_params['MLP']
 algos_cv_params['MAE']=algos_cv_params['MLP']
+algos_cv_params['ESN'].update({'calib_type':'GeneticAlgorithm',
+                   'scoring_type':None,
+                   'n_iter':7,
+                   'init_pop_size':4,
+                   'select_rate':0.5, 
+                   'mixing_ratio':0.5,  
+                   'mutation_proba':0.1, 
+                   'std_ratio':0.1})
 
 
 # Define the multithreading call queue
@@ -183,4 +194,6 @@ pass
 ## Trading Strategy
 
 ## Backtest/Plots/Trading Execution
+
+print('*** END ***')
 

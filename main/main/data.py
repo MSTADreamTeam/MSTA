@@ -5,10 +5,12 @@ import numpy as np
 import os
 import quandl
 
-def dataset_building(source='local',asset_ids=None,start_date=None, end_date=None, n_max=None):
+def dataset_building(source='local',asset_ids=None,start_date=None, end_date=None, n_max=None, verbose=None):
     ''' Build the dataset
     It currently supports local and quandl source
     ''' 
+    if verbose:
+        print('Dataset building...')
     if source=='local':
         cd=os.getcwd()
         price_data=pd.read_csv(cd+'\\data\\data_fx.csv') 
@@ -26,6 +28,9 @@ def dataset_building(source='local',asset_ids=None,start_date=None, end_date=Non
     # Cut the dataset to a lower number of obs
     if n_max is not None:
         price_data = price_data.iloc[-(n_max + 1):]     
+    
+    if verbose:
+        print('Dataset built')
     return price_data
 
 
