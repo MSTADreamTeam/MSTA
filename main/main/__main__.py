@@ -44,34 +44,34 @@ global_hyperparams={'rolling_window_size':rolling_window_size,
 ##########################################################################################################################
 ### Building the dataset ###
 ##########################################################################################################################
-# Define the additional data you want to recover
-stock_data, index_data=data.dataset_building(n_max=10000, verbose=1) # please recode the dataset_building functio to make it support local and quandl data
-dataset=index_data
-dataset.dropna(inplace=True)
 
+stock_data, index_data=data.dataset_building(n_max=None, verbose=1)
+dataset=index_data # here we work with the indexes
+data.add_returns(dataset) # This compute the 2 min return, the first return of everyday is wrong because it would represent the overnight return, we will drop him later
+#dataset.dropna(inplace=True)
 
 # We select an asset returns time series to predict from the dataset
 # Here we will work with the first index
-Y=dataset[dataset.columns[1]]
+Y=dataset['VGA Index Ret'] # SP500 mini
+Y.dropna(inplace=True)
+not_first_daily_data=Y.index.time!=Y.index[0].time()
+Y=Y.iloc[not_first_daily_data] # we drop the first data point of each day since we cannot compute properly the return
 days=list(set(Y.index.date)) # The list of days we will loop through
 days.sort()
 
-# X: include all the lags of Y and additional data
-# are we using the same structure with X????
-lags=range(1,rolling_window_size+1)
-X=data.lagged(dataset,lags=lags) # In X please always include all the lags of Y that you want to use for the HM as first colunms
-max_lags=max(lags)
-# We could also turn X into classes data, is that meaningful?
-# X=to_class(X,threshold)    
+# Explanatory variable X
+X=dataset['VGA Index'][Y.index] # X is just the prices
 
-# In case of classification, we classify Y 
+# In case of classification, we classify Y
 if output_type=='C': Y=data.to_class(Y, threshold)
-    
+
+
 
 
 ##########################################################################################################################
 ### Creating the different algorithms ###
 ##########################################################################################################################
+
 # First define a dictionary of algorithm associated with their names
 # As arguments please include the fixed hyperparams of the model as a named argument
 # For the hyperparameters grid to use in cross validation please provide a dictionary using sklearn syntax 
@@ -81,7 +81,7 @@ algos={'HM AR Full window':HM(global_hyperparams, hp_grid={'window_size':[10,100
        'MAE':MAE(global_hyperparams, hp_grid={'w':[10,20,100,200,500],'p1':np.linspace(0.001,0.01,10)})
        }
 
-# Then we just allow ourselves to work only a subset of these algos
+# Then we just allow ourselves to work only on a subset of these algos
 algos_used=algos.keys()
 
 # The default cross validation parameters dictionary
@@ -114,10 +114,11 @@ algos_cv_params['ESN'].update({'calib_type':'GeneticAlgorithm',
 ##########################################################################################################################
 ### Multithreading ###
 ##########################################################################################################################
+
 # Define the multithreading call queue
 # We define one thread by algorithm, it avoids problems with the GIL
-# since we will avoid to have several thread working on the same object 
-multithreading=True
+# since we will avoid having several threads working on the same object
+multithreading=False
 
 if multithreading: mt=MultiThreadCP(thread_names=algos_used)
 

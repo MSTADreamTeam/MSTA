@@ -28,13 +28,14 @@ def dataset_building(n_max=None, verbose=None):
     return stock_data, index_data
 
 
-def add_returns(df, col_index, window=1):
+def add_returns(df, col_index=None, window=1):
     ''' Compute the returns for some preselected columns of the dataset
-        Please provide numarical columns indexes
         And add them to the dataset
     '''
-    for i in col_index:
-        df[df.columns[i]+' Ret'] = (df.iloc[:,i]/df.iloc[:,i].shift(window)) - 1
+    if not col_index:
+        col_index=df.columns
+    for col in col_index:
+        df[col+' Ret'] = ((1+df.loc[:,col])/(1+df.loc[:,col].shift(window))) - 1
     return df
 
 
