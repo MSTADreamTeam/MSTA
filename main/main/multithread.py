@@ -1,4 +1,4 @@
-# This file is meant to optimize run time ny allowing multithreading of the __main__ code
+# This file is meant to optimize run time by allowing multithreading of the __main__ code
 # In a future release we might need to investigate the avantage of multiprocessing in top of multithreading
 # A good improvment would be to use the Parralel class defined in sklearn which supports multiprocessing and multithreading
 
@@ -9,7 +9,8 @@ from threading import Thread
 class MultiThreadCP():
     ''' This local class is used to package all multithreading operations
     during the calibration and prediction process 
-    In order to respect the GIL we create a thread and a corresponding queue for each algo '''
+    In order to respect the GIL we create a thread and a corresponding queue for each algo
+    so that they can run in parallel without conflict '''
     def __init__(self, thread_names=[]):
         self.threading_queues={thread_name:Queue() for thread_name in thread_names}
         for thread_name in thread_names:

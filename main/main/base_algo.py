@@ -52,17 +52,6 @@ class BaseAlgo:
             self.model.set_params(**parameters)
         return self
 
-    def select_data(self, X):
-        ''' Selecting data function
-        This function will output a list of column labels from X to be used in fit, calib and predict
-        It allows us to make all the algo work on the same complete dataset and just take slices of it for each algo
-        By default the algo will work with all the lags of the returns for ML, and with prices for TA
-        '''
-        if self.algo_type=='ML':
-            self.selected_data=[' Ret' in col for col in X.columns]
-        else:
-            self.selected_data=[' Ret' not in col for col in X.columns]
-        return self.selected_data
 
     def predict(self, X_test, pred_index=None, *kwargs):
         ''' Predict function used in main and in the cross validation process
@@ -95,7 +84,7 @@ class BaseAlgo:
         return self
 
     def calib(self, X_train, Y_train, pred_index=None, cross_val_type=None, hyperparams_grid=None, n_splits=10, calib_type=None, scoring_type=None, n_iter=10, **ga_args):
-        ''' The calib function defined here includes the calibration of hyperparameters and the fitting '''
+        ''' The calib function defined here includes the calibration of hyperparameters by CV and the fitting '''
         hp_grid=self.hp_grid if hyperparams_grid is None else hyperparams_grid
         if cross_val_type is not None and hp_grid is not None: # We do the calibration by cross val
             if cross_val_type=='k_folds':

@@ -14,11 +14,7 @@ class RSI(BaseAlgo):
         self.s_os=s_os # The slope for the oversold signal
         self.w=w if w is not None else global_hyperparams['rolling_window_size'] # The window size of the RS
 
-    def select_data(self, X):
-        ''' This TA algo works with returns '''
-        self.selected_data=[' Ret' in col for col in X.columns]
-        return self.selected_data
-
+   
     def predict(self, X_test, pred_index = None):
         ''' The signal is defined when the RSI breaks ob or os,
         then it needs to cross the defined slopes for the signal to be activated  '''

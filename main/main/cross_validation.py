@@ -1,4 +1,4 @@
-# We had to recode these basic functions in order to make them compatible with our architecture
+# I had to recode these basic functions in order to make them compatible with our architecture
 
 import numpy as np
 from sklearn.model_selection import ParameterGrid, ParameterSampler
@@ -32,7 +32,7 @@ class CrossVal:
         best_score=-np.Inf
         # This syntax distinction is due to the face that the iterator is copied in a 'for hp in self.hp_iterable' statement, 
         # hence it makes it impossible to update it for the Generic Algorithm
-        # We could work on rewritting this code, but it seems to be the easiest syntax as of now  
+        # We could work on rewritting this code, but it seems to be the easiest syntax as of now, fuck it
         iterator=self.hp_iterable.__iter__() if not isinstance(self.hp_iterable, GeneticAlgorithm) else self.hp_iterable.iter()
         train_test_sets=[(X.iloc[train], Y.iloc[train], X.iloc[test], Y.iloc[test]) for train, test in self.cv.split(X,Y)] # This line minimize the cost of getters
         while True:
@@ -40,7 +40,7 @@ class CrossVal:
                 hp=iterator.__next__()
             except StopIteration:
                 break
-            # Should we fix the random seed here?
+            # Should we fix the random seed here? -> check research about it
             self.algo.set_hyperparams(**hp)
             score=[]
             for X_train, Y_train, X_test, Y_test in train_test_sets:
