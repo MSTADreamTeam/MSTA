@@ -20,8 +20,7 @@ def dataset_building(n_max=None, verbose=None):
         data=data.sort_index(axis=0,ascending=True)
        
         # Cut the dataset to a lower number of obs
-        if n_max is not None:
-            data = data.iloc[-(n_max + 1):]     
+        if n_max is not None: data = data.iloc[-(n_max + 1):]
        
     if verbose: print('Dataset built')
 

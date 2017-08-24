@@ -18,7 +18,7 @@ class BaseAlgo:
         self.predicted_values=[] # Will store predicted values as a list
         self.pred_index=[] # Used to build the outputs dictionaries
         self.real_values=[] # Not used yet, need to delete?
-        self.selected_data=[] # List of column names from the main dataset 
+        # self.selected_data=[] # List of column names from the main dataset 
         self.global_hyperparams=global_hyperparams # Dictionary of global hyperparameters
         self.hp_grid=hp_grid # The hyperparameters grid used in the CV
         # self.set_hyperparams(**{param_key:param_values[0] for param_key, param_values in hp_grid.items()}) # Initialize the value of the hyperparams attributes with the first value in the hp_grid

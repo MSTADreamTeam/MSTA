@@ -39,7 +39,7 @@ threshold=0.000
 # This dictionary of global hyperparameters will be passed an an argument of all built algorithms
 global_hyperparams={'rolling_window_size':rolling_window_size,
                     'output_type':output_type,
-                    'threshold':threshold}    
+                    'threshold':threshold}  
 
 ##########################################################################################################################
 ### Building the dataset ###
@@ -99,16 +99,15 @@ algos_cv_params['GDC'].update({'calib_type':'GeneticAlgorithm',
                    'mixing_ratio':0.5,  
                    'mutation_proba':0.1, 
                    'std_ratio':0.1})
-algos_cv_params['ElasticNet']=dict(algos_cv_params['Lasso'])
 algos_cv_params['MAE']=dict(algos_cv_params['GDC'])
-algos_cv_params['ESN'].update({'calib_type':'GeneticAlgorithm',
-                   'scoring_type':None,
-                   'n_iter':7,
-                   'init_pop_size':4,
-                   'select_rate':0.5, 
-                   'mixing_ratio':0.5,  
-                   'mutation_proba':0.1, 
-                   'std_ratio':0.1})
+#algos_cv_params['ESN'].update({'calib_type':'GeneticAlgorithm',
+#                   'scoring_type':None,
+#                   'n_iter':7,
+#                   'init_pop_size':4,
+#                   'select_rate':0.5, 
+#                   'mixing_ratio':0.5,  
+#                   'mutation_proba':0.1, 
+#                   'std_ratio':0.1})
 
 
 ##########################################################################################################################
