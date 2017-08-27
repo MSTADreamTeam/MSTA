@@ -17,19 +17,25 @@ from multi_layer_perceptron import MLP
 from golden_dead_cross import GDC
 from ma_enveloppe import MAE
 from relative_strength_index import RSI
+from recurrent_neural_network import ESN
+from recurrent_neural_network import LST
+
 
 ## Global Hyperparameters
 # The window size of the rolling window used to define each training set size
 # The models will never see more than this number of points at once
 rolling_window_size=500
-    
+
+# The number of data poiints between each recalibration
+recalib_window=100
+
 # Output type : C for Classification, R for Regression
 output_type='C'
 # Note that for a Classification, 1 means positive return, -1 means negative, and 0 means bellow threshold
 # In case of 3 class Classification, please provide an absolute level for the zero return threshold
 # Fix it to 0 for a binary classification
 # The optimal value can also be globally optimized as a result of the PnL optimisation and will be function of the volatility of the asset
-threshold=0.001
+threshold=0.00
 
 # This dictionary of global hyperparameters will be passed an an argument of all built algorithms
 global_hyperparams={'rolling_window_size':rolling_window_size,
@@ -44,7 +50,7 @@ end_date=None # None to go until the last available data
 
 # Define the additional data you want to recover
 asset_ids=[main_id]+[]
-dataset=data.dataset_building('local', asset_ids, start_date, end_date, n_max=2000) # please recode the dataset_building functio to make it support local and quandl data
+dataset=data.dataset_building('quandl', asset_ids, start_date, end_date, n_max=None) # please recode the dataset_building functio to make it support local and quandl data
 dataset = data.add_returns(dataset, [0]) # creates some NANs as a result of the returns computation
 dataset.dropna(inplace=True)
 
@@ -54,7 +60,7 @@ Y=dataset[dataset.columns[1]] # need to find a reliable way to find the index of
 # X: include all the lags of Y and additional data
 lags=range(1,rolling_window_size+1)
 X=data.lagged(dataset,lags=lags) # In X please always include all the lags of Y that you want to use for the HM as first colunms
-max_lags=max(lags)
+#max_lags=max(lags)
 # We could also turn X into classes data, is that meaningful?
 # X=to_class(X,threshold)    
 
@@ -78,22 +84,23 @@ algos={'HM AR Full window':HM(global_hyperparams),# hp_grid={'window_size':[10,1
        'ADAB':ADAB(global_hyperparams, hp_grid={'n_estimators':[1,5,10]}, base_algo=DT(global_hyperparams)),
        'MLP':MLP(global_hyperparams,hp_grid={'alpha':np.linspace(0.1,1,9),'hidden_layer_sizes':[(10,),(100,),(200,)]},activation='relu', solver='lbfgs'),
        'GDC':GDC(global_hyperparams, hp_grid={'stw':[20,50,100],'ltw':[150,200,300],'a':np.linspace(0,1,10),'b':np.linspace(0,1,10)}, c=1),
-       'MAE':MAE(global_hyperparams, hp_grid={'w':[10,20,100,200,500],'p1':np.linspace(0.001,0.01,10)})}
+       'MAE':MAE(global_hyperparams, hp_grid={'w':[10,20,100,200,500],'p1':np.linspace(0.001,0.01,10)}),
+       'RSI':RSI(global_hyperparams, hp_grid={'ob':[60,70,80,90],'os':[10,20,30,40],'w':[10,20,100,200,500]})}
 
 # Then we just allow ourselves to work only a subset of these algos
 algos_used=algos.keys()
-algos_used=['MAE','GDC']
+algos_used=['MAE','GDC','RSI'] 
 
 # The default cross validation parameters dictionary
 default_cv_params={'cross_val_type':'ts_cv',
                    'n_splits':5,
                    'calib_type':'GridSearch'}
+# The params to avoid the cv
+no_cv_params={'cross_val_type':None} 
 
 # Fix the cross validation parameters of each algorithm you wish to use
 algos_cv_params={key:dict(default_cv_params) for key in algos} # The dict constructor allows for a copy of the default dict
-algos_cv_params['Lasso']['calib_type']='RandomSearch'
-algos_cv_params['Lasso']['n_iter']=5
-algos_cv_params['MLP'].update({'calib_type':'GeneticAlgorithm',
+algos_cv_params['RSI'].update({'calib_type':'GeneticAlgorithm',
                    'scoring_type':None,
                    'n_iter':7,
                    'init_pop_size':4,
@@ -101,15 +108,14 @@ algos_cv_params['MLP'].update({'calib_type':'GeneticAlgorithm',
                    'mixing_ratio':0.5,  
                    'mutation_proba':0.1, 
                    'std_ratio':0.1})
-algos_cv_params['ElasticNet']=algos_cv_params['Lasso']
-algos_cv_params['GDC']=algos_cv_params['MLP']
-algos_cv_params['MAE']=algos_cv_params['MLP']
+algos_cv_params['GDC']=algos_cv_params['RSI']
+algos_cv_params['MAE']=algos_cv_params['RSI']
 
 
 # Define the multithreading call queue
 # We define one thread by algorithm, it avoids problems with the GIL
 # since we will avoid to have several thread working on the same object 
-multithreading=False
+multithreading=True
 
 if multithreading: mt=MultiThreadCP(thread_names=algos_used)
 
@@ -118,24 +124,26 @@ for key in algos_used:
     algos[key].select_data(X)
 
 
-for i in range(rolling_window_size+max_lags,len(Y.index)): # Note that i in the numeric index in Y of the predicted value
-    train=range(i-rolling_window_size,i) # should be equal to i-rolling_window_size:i-1
-    test=[i] # I am not sure of the index, we can check, it is inside [] to make sure the slicing produces a dataframe        pred_index=Y.index[test] # This is the timestamp of i
-    pred_index=Y.index[test] # This is the timestamp of i
-    X_train=X.iloc[train, algos[key].selected_data]
-    Y_train=Y.iloc[train]
-    X_test=X.iloc[test, algos[key].selected_data]
-    for key in algos_used:
-        if multithreading: # We add the task to the MultiThreading calib & predict object
-            mt.add_task(thread_name=key, 
-                        algo=algos[key], 
-                        X_train=X_train,
-                        Y_train=Y_train, 
-                        X_test=X_test,
-                        pred_index=pred_index,
-                        algo_cv_params=algos_cv_params[key])        
-        else: # We calibrate the hyperparameters and predict
-            algos[key].calib_predict(X_train, Y_train, X_test, pred_index, **algos_cv_params[key])
+for i in range(rolling_window_size,len(Y.index)): # Note that i in the numeric index in Y of the predicted value
+    recalib=(i-rolling_window_size)  % recalib_window == 0
+    if recalib:
+        train=range(i-rolling_window_size,i) # should be equal to i-rolling_window_size:i-1
+        test=range(i,min(i+recalib_window,len(Y))) # the date we try to predict
+        pred_index=Y.index[test] # This is the timestamp of the predicted indices
+        X_train=X.iloc[train, algos[key].selected_data]
+        Y_train=Y.iloc[train]
+        X_test=X.iloc[test, algos[key].selected_data]
+        for key in algos_used:
+            if multithreading: # We add the task to the MultiThreading calib & predict object
+                mt.add_task(thread_name=key, 
+                            algo=algos[key], 
+                            X_train=X_train,
+                            Y_train=Y_train, 
+                            X_test=X_test,
+                            pred_index=pred_index,
+                            algo_cv_params=algos_cv_params[key])        
+            else: # We calibrate the hyperparameters and predict
+                algos[key].calib_predict(X_train, Y_train, X_test, pred_index, **algos_cv_params[key])
 
         
 # Make sure that all the threads are done
@@ -148,11 +156,10 @@ if multithreading:
 for key in algos_used:
     algos[key].compute_outputs(Y)
 
-print(algos[key].best_hp)   
+
 ## Core algorithm
 # Definition of the core algo
-core=HM(global_hyperparams) # Average of the predictions 
-#core=BIS(global_hyperparams, 'accuracy')
+core=DT(global_hyperparams)
 
 # We first built a new dataset with all the predictions for the algos, it will be our new X
 X_core=data.core_dataset(algos, algos_used)
@@ -160,12 +167,13 @@ Y_core=Y.loc[X_core.index]
 
 # Again we do the rolling window estimation process
 for i in range(rolling_window_size+1,len(Y_core.index)): # Note that i in the numeric index in Y of the predicted value
-    train=range(i-rolling_window_size,i) # should be equal to i-rolling_window_size:i-1
-    test=[i] # I am not sure of the index, we can check, it is inside [] to make sure the slicing produces a dataframe
-    pred_index=Y_core.index[test] # This is the timestamp of i
-
-    # We calibrate the hyperparameters and predict
-    core.calib_predict(X_core.iloc[train], Y_core.iloc[train], X_core.iloc[test], pred_index, **default_cv_params)
+    recalib=(i-rolling_window_size-1)  % recalib_window == 0
+    if recalib:
+        train=range(i-rolling_window_size,i) # should be equal to i-rolling_window_size:i-1
+        test=range(i,min(i+recalib_window,len(Y_core))) # the date we try to predict
+        pred_index=Y_core.index[test] # This is the timestamp of i
+        # We calibrate the hyperparameters and predict
+        core.calib_predict(X_core.iloc[train], Y_core.iloc[train], X_core.iloc[test], pred_index, **default_cv_params)
 
 # We compute the outputs
 core.compute_outputs(Y_core)

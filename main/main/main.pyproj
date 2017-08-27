@@ -34,7 +34,7 @@
     <Compile Include="ma_enveloppe.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="echo_state_network.py">
+    <Compile Include="recurrent_neural_network.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="relative_strength_index.py">

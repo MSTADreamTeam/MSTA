@@ -61,10 +61,10 @@ def to_class(input, threshold=0):
 
 def core_dataset(algos, algos_used):
     ''' Built a core dataset using predictions from the algos '''
-    list_df=[]
+    list_df={}
     for key in algos_used:
-        list_df.append(algos[key].get_output('predicted_values'))
-    return pd.concat(list_df, axis=0)
+        list_df[key]=algos[key].get_output('predicted_values')
+    return pd.concat(list_df, axis=1)
 
 def lagdf_to_ts(df):
     ''' Transform a lagged dataset into a time series of all available prices
