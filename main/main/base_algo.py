@@ -96,7 +96,7 @@ class BaseAlgo:
 
     def calib(self, X_train, Y_train, pred_index=None, cross_val_type=None, hyperparams_grid=None, n_splits=10, calib_type=None, scoring_type=None, n_iter=10, **ga_args):
         ''' The calib function defined here includes the calibration of hyperparameters and the fitting '''
-        hp_grid=self.hp_grid if hyperparams_grid is None else hyperparams_grid
+        hp_grid=self.hp_grid if hyperparams_grid is None else hyperparams_grida
         if cross_val_type is not None and hp_grid is not None: # We do the calibration by cross val
             if cross_val_type=='k_folds':
                 cv=KFold(n_splits,shuffle=False)        

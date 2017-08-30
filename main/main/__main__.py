@@ -17,8 +17,11 @@ from multi_layer_perceptron import MLP
 from golden_dead_cross import GDC
 from ma_enveloppe import MAE
 from relative_strength_index import RSI
-from recurrent_neural_network import ESN
-from recurrent_neural_network import LST
+from momentum_roc import MOM, ROC
+#from recurrent_neural_network import ESN
+#from recurrent_neural_network import LST
+
+from trading_strategy import TradingStrat
 
 
 ## Global Hyperparameters
@@ -27,7 +30,7 @@ from recurrent_neural_network import LST
 rolling_window_size=500
 
 # The number of data poiints between each recalibration
-recalib_window=100
+recalib_window=50
 
 # Output type : C for Classification, R for Regression
 output_type='C'
@@ -35,7 +38,7 @@ output_type='C'
 # In case of 3 class Classification, please provide an absolute level for the zero return threshold
 # Fix it to 0 for a binary classification
 # The optimal value can also be globally optimized as a result of the PnL optimisation and will be function of the volatility of the asset
-threshold=0.00
+threshold=0.000
 
 # This dictionary of global hyperparameters will be passed an an argument of all built algorithms
 global_hyperparams={'rolling_window_size':rolling_window_size,
@@ -45,7 +48,7 @@ global_hyperparams={'rolling_window_size':rolling_window_size,
 ## Building the dataset
 # Define the main asset ID
 main_id='CUR/EUR'
-start_date='01/01/2013'
+start_date='01/01/2010'
 end_date=None # None to go until the last available data
 
 # Define the additional data you want to recover
@@ -55,7 +58,7 @@ dataset = data.add_returns(dataset, [0]) # creates some NANs as a result of the 
 dataset.dropna(inplace=True)
 
 # We select an asset returns time series to predict from the dataset
-Y=dataset[dataset.columns[1]] # need to find a reliable way to find the index of the column 
+Y_0=dataset[dataset.columns[1]] # need to find a reliable way to find the index of the column 
 
 # X: include all the lags of Y and additional data
 lags=range(1,rolling_window_size+1)
@@ -65,7 +68,7 @@ X=data.lagged(dataset,lags=lags) # In X please always include all the lags of Y 
 # X=to_class(X,threshold)    
 
 # In case of classification, we classify Y 
-if output_type=='C': Y=data.to_class(Y, threshold)
+if output_type=='C': Y=data.to_class(Y_0, threshold)
     
 
 ## Creating & calibrating the different algorithms
@@ -73,44 +76,39 @@ if output_type=='C': Y=data.to_class(Y, threshold)
 # First define a dictionary of algorithm associated with their names
 # As arguments please include the fixed hyperparams of the model as a named argument
 # For the hyperparameters grid to use in cross validation please provide a dictionary using sklearn syntax 
-algos={'HM AR Full window':HM(global_hyperparams),# hp_grid={'window_size':[10,100,500]}),
-       'HM GEO Full window':HM(global_hyperparams,mean_type='geometric',hp_grid={'window_size':[1,10,50,100]}),
-       'HM AR Short Term':HM(global_hyperparams,window_size=10),
-       'LR':LR(global_hyperparams),
-       'Lasso':LR(global_hyperparams, regularization='Lasso',hp_grid={'alpha':np.logspace(-4,1,10)}),
-       'ElasticNet':LR(global_hyperparams, regularization='ElasticNet',hp_grid={'alpha':np.logspace(-3,1,20),'l1_ratio':np.linspace(0,1,20)}),
-       'Tree':DT(global_hyperparams,hp_grid={'max_features':['sqrt',None],'criterion':['gini','entropy']}),
-       'RF':RF(global_hyperparams, hp_grid={'max_features':['sqrt',None],'n_estimators':range(10,200,20)}),
-       'ADAB':ADAB(global_hyperparams, hp_grid={'n_estimators':[1,5,10]}, base_algo=DT(global_hyperparams)),
-       'MLP':MLP(global_hyperparams,hp_grid={'alpha':np.linspace(0.1,1,9),'hidden_layer_sizes':[(10,),(100,),(200,)]},activation='relu', solver='lbfgs'),
+algos={'HM':HM(global_hyperparams, hp_grid={'window_size':[10,100,500]}),
+       #'LR':LR(global_hyperparams),
+       #'Lasso':LR(global_hyperparams, regularization='Lasso',hp_grid={'alpha':np.logspace(-4,1,10)}),
+       #'ElasticNet':LR(global_hyperparams, regularization='ElasticNet',hp_grid={'alpha':np.logspace(-3,1,20),'l1_ratio':np.linspace(0,1,20)}),
+       #'Tree':DT(global_hyperparams,hp_grid={'max_features':['sqrt',None],'criterion':['gini','entropy']}),
+       #'RF':RF(global_hyperparams, hp_grid={'max_features':['sqrt',None],'n_estimators':range(10,200,20)}),
+       #'ADAB':ADAB(global_hyperparams, hp_grid={'n_estimators':[1,5,10]}, base_algo=DT(global_hyperparams)),
+       #'MLP':MLP(global_hyperparams,hp_grid={'alpha':np.linspace(0.1,1,9),'hidden_layer_sizes':[(10,),(100,),(200,)]},activation='relu', solver='lbfgs'),
        'GDC':GDC(global_hyperparams, hp_grid={'stw':[20,50,100],'ltw':[150,200,300],'a':np.linspace(0,1,10),'b':np.linspace(0,1,10)}, c=1),
        'MAE':MAE(global_hyperparams, hp_grid={'w':[10,20,100,200,500],'p1':np.linspace(0.001,0.01,10)}),
-       'RSI':RSI(global_hyperparams, hp_grid={'ob':[60,70,80,90],'os':[10,20,30,40],'w':[10,20,100,200,500]})}
+       'RSI':RSI(global_hyperparams, hp_grid={'ob':[60,70,80,90],'os':[10,20,30,40],'w':[10,20,100,200,500]}),
+       'MOM':MOM(global_hyperparams, hp_grid={'n':range(1,500,10)}),
+       'ROC':ROC(global_hyperparams, hp_grid={'n':range(1,500,10)})}
 
 # Then we just allow ourselves to work only a subset of these algos
 algos_used=algos.keys()
-algos_used=['MAE','GDC','RSI'] 
 
 # The default cross validation parameters dictionary
 default_cv_params={'cross_val_type':'ts_cv',
                    'n_splits':5,
-                   'calib_type':'GridSearch'}
+                   'calib_type':'GeneticAlgorithm',
+                   'scoring_type':None,
+                   'n_iter':200,
+                   'init_pop_size':100,
+                   'select_rate':0.5, 
+                   'mixing_ratio':0.5,  
+                   'mutation_proba':0.1, 
+                   'std_ratio':0.1}
 # The params to avoid the cv
 no_cv_params={'cross_val_type':None} 
 
 # Fix the cross validation parameters of each algorithm you wish to use
 algos_cv_params={key:dict(default_cv_params) for key in algos} # The dict constructor allows for a copy of the default dict
-algos_cv_params['RSI'].update({'calib_type':'GeneticAlgorithm',
-                   'scoring_type':None,
-                   'n_iter':7,
-                   'init_pop_size':4,
-                   'select_rate':0.5, 
-                   'mixing_ratio':0.5,  
-                   'mutation_proba':0.1, 
-                   'std_ratio':0.1})
-algos_cv_params['GDC']=algos_cv_params['RSI']
-algos_cv_params['MAE']=algos_cv_params['RSI']
-
 
 # Define the multithreading call queue
 # We define one thread by algorithm, it avoids problems with the GIL
@@ -189,6 +187,8 @@ print(core.best_hp)
 pass
 
 ## Trading Strategy
+TS=TradingStrat(global_hyperparams, core.get_output("predicted_values"), Y_0, threshold)
 
 ## Backtest/Plots/Trading Execution
-
+TS.compute_output()
+TS.plots()

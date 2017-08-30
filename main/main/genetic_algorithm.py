@@ -1,12 +1,12 @@
 # This file defines the Generic Algorithm iterator used in cross validation
 import numpy as np
-from sklearn.model_selection import ParameterSampler
+from sklearn.model_selection import ParameterSampler, ParameterGrid
 from random import sample, randint
 from copy import deepcopy
 
 class GeneticAlgorithm:
     ''' Genetic Algorithm iterable/iterator
-    From a ramdomly generated initial population, the algorithm will improve it generation after generation
+    From a randomly generated initial population, the algorithm will improve it generation after generation
     The process of improvment is based on the selection, crossover and mutation phases applied at each new generation
     !!! please read for additional ideas: !!!
     James S. Bergstra, R´emi Bardenet, Yoshua Bengio, and Bal´azs K´egl. Algorithms for hyper-parameter
@@ -29,7 +29,10 @@ class GeneticAlgorithm:
         it initializes all dynamic elements '''
         self.n_iter=0
         self.pop_scores=[]
-        self.population=list(ParameterSampler(self.hp_grid, self.init_pop_size)) # First population is random, we turn it into list to copy it
+        try:
+            self.population=list(ParameterSampler(self.hp_grid, self.init_pop_size)) # First population is random, we turn it into list to copy it
+        except ValueError:
+            self.population=list(ParameterGrid(self.hp_grid))
         self.current_pop=self.population.copy()
         self.generation=0
         return self

@@ -34,6 +34,9 @@
     <Compile Include="ma_enveloppe.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="momentum_roc.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="recurrent_neural_network.py">
       <SubType>Code</SubType>
     </Compile>
@@ -44,9 +47,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="multi_layer_perceptron.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="__main__zipline.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="random_forest.py">
@@ -75,9 +75,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="core_base_algos.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="test_keras.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

@@ -1,6 +1,6 @@
 # RSI Techinical Analysis signal
 
-from base_algo import BaseAlgo
+from base_algo import BaseAlgo, AlgoError
 
 class RSI(BaseAlgo):
     ''' Relative Strength Index Technical Analysis signal '''
@@ -11,6 +11,7 @@ class RSI(BaseAlgo):
         self.ob=ob # The overbought level for the RSI
         self.os=os # The oversold level for the RSI
         self.w=w if w is not None else global_hyperparams['rolling_window_size'] # The window size of the RS
+        if global_hyperparams['output_type']=='R': raise AlgoError('You cannot call RSI as a regressor')
 
     def select_data(self, X):
         ''' This TA algo works with returns '''

@@ -45,7 +45,7 @@ class CrossVal:
             score=[]
             for X_train, Y_train, X_test, Y_test in train_test_sets:
                 self.algo.fit(X_train, Y_train)
-                pred_values=self.algo.predict(X_test) # Be careful not to stock predicted values in the algo, since it is only temporary internal results
+                pred_values=self.algo.predict(X_test) # Be careful not to store predicted values in the algo, since it is only temporary internal results
                 self.algo.compute_outputs(Y_test, pred_values, self.scoring)
                 score.append(getattr(self.algo, self.scoring))    
                 self.algo.reset_outputs() # For safety, it is currently needed, please do not change without rethinking the code

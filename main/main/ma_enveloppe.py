@@ -1,6 +1,6 @@
 # This file will describe the MA enveloppe Technical Analysis signal
 
-from base_algo import BaseAlgo
+from base_algo import BaseAlgo, AlgoError
 
 class MAE(BaseAlgo):
     ''' MA Enveloppe Technical Analysis signal '''
@@ -11,6 +11,7 @@ class MAE(BaseAlgo):
         self.p1=p1
         self.p2=p2
         self.w=w if w is not None else global_hyperparams['rolling_window_size']
+        if global_hyperparams['output_type']=='R': raise AlgoError('You cannot call MAE as a regressor')
 
     def predict(self, X_test, pred_index = None):
         ''' The signal is defined when the price breaks the upper or lower MA enveloppe '''
